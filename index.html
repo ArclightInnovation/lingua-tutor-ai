@@ -165,6 +165,22 @@
     .badge-success { background: #d1fae5; color: #065f46; }
     .badge-amber { background: #fef3c7; color: #92400e; }
 
+    /* Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent-purple) 100%);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
     /* Bottom Navigation Bar */
     nav {
       background: #ffffff;
@@ -275,6 +291,34 @@
       transition: transform 0.2s ease;
     }
 
+    /* Fullscreen Modal Player */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      padding: 24px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
     /* Call Tutor Overlay Screen */
     #call-screen {
       position: fixed;
@@ -346,6 +390,31 @@
       display: flex;
       gap: 8px;
     }
+
+    .phrase-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+
+    .audio-btn {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -373,7 +442,7 @@
         <span>🌐</span> LingoTutor AI
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn-secondary" id="btn-placement-test" style="min-height:36px; padding:4px 10px;">📊 Placement Test</button>
+        <button class="btn-secondary" id="btn-placement-test" style="min-height:36px; padding:4px 10px;">📊 Diagnostic</button>
         <button class="btn-secondary" id="btn-lock" style="min-height:36px; padding:4px 10px; color:var(--accent-red); border-color:#fca5a5; background:#fef2f2;">🔒 Lock</button>
       </div>
     </header>
@@ -381,14 +450,21 @@
     <main>
       <!-- 🏠 HOME VIEW -->
       <div id="view-home" class="view-section active">
+        <!-- Daily Progress Header Card -->
         <div class="card" style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-color: #c7d2fe;">
           <div class="card-header">
             <div>
-              <span class="badge badge-primary">CONTINUE LEARNING</span>
+              <span class="badge badge-primary">DAILY GOAL: 12 / 20 MINS</span>
               <div style="font-size:1.2rem; font-weight:800; color:var(--text-main); margin-top:6px;" id="h-unit-title">Unit 1: Introductions & Greetings</div>
             </div>
-            <span style="font-size:2rem;" id="h-lang-flag">🇪🇸</span>
+            <span style="font-size:2.2rem;" id="h-lang-flag">🇪🇸</span>
           </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 60%;"></div>
+          </div>
+
           <p style="font-size:0.88rem; color:var(--text-muted); margin:0;" id="h-lesson-desc">Lesson 3: Asking someone's name & hometown</p>
           <button class="btn-primary" id="btn-start-lesson">▶ Start Lesson 3 (7 mins)</button>
         </div>
@@ -432,7 +508,7 @@
               <div style="font-size:0.95rem; font-weight:700; color:var(--primary);">Unit 1: Introductions</div>
               <div style="font-size:0.85rem; color:var(--accent-green); font-weight:600; margin-top:4px;">✓ Lesson 1: Saying Hello</div>
               <div style="font-size:0.85rem; color:var(--accent-green); font-weight:600;">✓ Lesson 2: Introducing Yourself</div>
-              <div style="font-size:0.85rem; color:var(--primary); font-weight:700;">▶ Lesson 3: Asking Someone's Name</div>
+              <div style="font-size:0.85rem; color:var(--primary); font-weight:700; cursor:pointer;" onclick="openInteractiveLessonModal()">▶ Lesson 3: Asking Someone's Name (Tap to Start)</div>
               <div style="font-size:0.85rem; color:var(--text-muted);">○ Lesson 4: Where Are You From?</div>
             </div>
             <div class="card" style="background:#f8fafc; border-color:var(--card-border); padding:14px;">
@@ -517,11 +593,20 @@
         </div>
 
         <div class="card">
-          <div class="card-title">📕 Personal Phrasebook</div>
-          <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);" id="phrasebook-list">
-            <div>• <strong>¿Cómo te llamas?</strong> — What is your name?</div>
-            <div>• <strong>Mucho gusto en conocerte</strong> — Nice to meet you</div>
-            <div>• <strong>¿Dónde está el baño?</strong> — Where is the restroom?</div>
+          <div class="card-title">📕 Personal Phrasebook (With ElevenLabs Native Audio)</div>
+          <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);" id="phrasebook-list">
+            <div class="phrase-item">
+              <div><strong>¿Cómo te llamas?</strong> — What is your name?</div>
+              <button class="audio-btn" onclick="playElevenLabsSpeech('¿Cómo te llamas?')">🔊</button>
+            </div>
+            <div class="phrase-item">
+              <div><strong>Mucho gusto en conocerte</strong> — Nice to meet you</div>
+              <button class="audio-btn" onclick="playElevenLabsSpeech('Mucho gusto en conocerte')">🔊</button>
+            </div>
+            <div class="phrase-item">
+              <div><strong>¿Dónde está el baño?</strong> — Where is the restroom?</div>
+              <button class="audio-btn" onclick="playElevenLabsSpeech('¿Dónde está el baño?')">🔊</button>
+            </div>
           </div>
         </div>
       </div>
@@ -602,6 +687,31 @@
     </nav>
   </div>
 
+  <!-- Interactive Fullscreen Lesson Modal Player -->
+  <div id="lesson-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="badge badge-primary">LESSON 3 OF 12</span>
+        <button class="btn-secondary" style="min-height:30px; padding:2px 8px;" onclick="closeLessonModal()">✕</button>
+      </div>
+
+      <div style="font-size:1.15rem; font-weight:800; color:var(--text-main);" id="lesson-step-title">Lesson 3: Asking Someone's Name</div>
+      
+      <div style="font-size:0.88rem; color:var(--text-muted);" id="lesson-step-content">
+        Learn how to ask and respond to names in Spanish using polite phrasing.
+      </div>
+
+      <div id="lesson-step-box" style="background:#f8fafc; border:1px solid var(--card-border); padding:14px; border-radius:12px; font-size:0.9rem;">
+        <div style="font-weight:700; color:var(--primary); margin-bottom:4px;">New Phrase:</div>
+        <div style="font-size:1.1rem; font-weight:800;">¿Cómo te llamas?</div>
+        <div style="color:var(--text-muted); font-size:0.85rem;">"What is your name?"</div>
+        <button class="btn-secondary" style="margin-top:10px; width:100%; font-size:0.85rem;" onclick="playElevenLabsSpeech('¿Cómo te llamas?')">🔊 Listen Native Audio</button>
+      </div>
+
+      <button class="btn-primary" id="btn-next-lesson-step">Next Step ▶</button>
+    </div>
+  </div>
+
   <!-- Real-Time AI Tutor Call Overlay Screen -->
   <div id="call-screen">
     <div style="text-align:center;">
@@ -643,61 +753,101 @@
         flag: "🇪🇸",
         code: "es-ES",
         greeting: "¡Hola! Bienvenido a tu clase de español con ElevenLabs AI Agent. ¿Cómo te llamas?",
-        phrases: ["• <strong>¿Cómo te llamas?</strong> — What is your name?", "• <strong>Mucho gusto en conocerte</strong> — Nice to meet you", "• <strong>¿Dónde está el baño?</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "¿Cómo te llamas?", trans: "What is your name?" },
+          { text: "Mucho gusto en conocerte", trans: "Nice to meet you" },
+          { text: "¿Dónde está el baño?", trans: "Where is the restroom?" }
+        ]
       },
       "French": {
         flag: "🇫🇷",
         code: "fr-FR",
         greeting: "Bonjour! Bienvenue à votre cours de français avec l'agent ElevenLabs AI. Comment vous appelez-vous?",
-        phrases: ["• <strong>Comment vous appelez-vous?</strong> — What is your name?", "• <strong>Enchanté de vous rencontrer</strong> — Nice to meet you", "• <strong>Où sont les toilettes?</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "Comment vous appelez-vous?", trans: "What is your name?" },
+          { text: "Enchanté de vous rencontrer", trans: "Nice to meet you" },
+          { text: "Où sont les toilettes?", trans: "Where is the restroom?" }
+        ]
       },
       "German": {
         flag: "🇩🇪",
         code: "de-DE",
         greeting: "Hallo! Willkommen zu deinem Deutschunterricht mit ElevenLabs AI Agent. Wie heißt du?",
-        phrases: ["• <strong>Wie heißt du?</strong> — What is your name?", "• <strong>Schön dich kennenzulernen</strong> — Nice to meet you", "• <strong>Wo ist die Toilette?</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "Wie heißt du?", trans: "What is your name?" },
+          { text: "Schön dich kennenzulernen", trans: "Nice to meet you" },
+          { text: "Wo ist die Toilette?", trans: "Where is the restroom?" }
+        ]
       },
       "Italian": {
         flag: "🇮🇹",
         code: "it-IT",
         greeting: "Ciao! Benvenuto alla tua lezione di italiano con ElevenLabs AI Agent. Come ti chiami?",
-        phrases: ["• <strong>Come ti chiami?</strong> — What is your name?", "• <strong>Piacere di conoscerti</strong> — Nice to meet you", "• <strong>Dov'è il bagno?</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "Come ti chiami?", trans: "What is your name?" },
+          { text: "Piacere di conoscerti", trans: "Nice to meet you" },
+          { text: "Dov'è il bagno?", trans: "Where is the restroom?" }
+        ]
       },
       "Mandarin": {
         flag: "🇨🇳",
         code: "zh-CN",
         greeting: "你好！欢迎来到ElevenLabs AI Agent中文课。你叫什么名字？",
-        phrases: ["• <strong>你叫什么名字？</strong> — What is your name?", "• <strong>很高兴认识你</strong> — Nice to meet you", "• <strong>洗手间在哪里？</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "你叫什么名字？", trans: "What is your name?" },
+          { text: "很高兴认识你", trans: "Nice to meet you" },
+          { text: "洗手间在哪里？", trans: "Where is the restroom?" }
+        ]
       },
       "Japanese": {
         flag: "🇯🇵",
         code: "ja-JP",
         greeting: "こんにちは！ElevenLabs AI Agent日本語レッスンへようこそ。お名前は何ですか？",
-        phrases: ["• <strong>お名前は何ですか？</strong> — What is your name?", "• <strong>はじめまして</strong> — Nice to meet you", "• <strong>お手洗いはどこですか？</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "お名前は何ですか？", trans: "What is your name?" },
+          { text: "はじめまして", trans: "Nice to meet you" },
+          { text: "お手洗いはどこですか？", trans: "Where is the restroom?" }
+        ]
       },
       "Korean": {
         flag: "🇰🇷",
         code: "ko-KR",
         greeting: "안녕하세요! ElevenLabs AI Agent 한국어 수업에 오신 것을 환영합니다. 이름이 무엇인가요?",
-        phrases: ["• <strong>이름이 무엇인가요?</strong> — What is your name?", "• <strong>반갑습니다</strong> — Nice to meet you", "• <strong>화장실이 어디예요?</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "이름이 무엇인가요?", trans: "What is your name?" },
+          { text: "반갑습니다", trans: "Nice to meet you" },
+          { text: "화장실이 어디예요?", trans: "Where is the restroom?" }
+        ]
       },
       "Portuguese": {
         flag: "🇵🇹",
         code: "pt-PT",
         greeting: "Olá! Bem-vindo à sua aula de português com ElevenLabs AI Agent. Como você se chama?",
-        phrases: ["• <strong>Como você se chama?</strong> — What is your name?", "• <strong>Prazer em conhecê-lo</strong> — Nice to meet you", "• <strong>Onde fica o banheiro?</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "Como você se chama?", trans: "What is your name?" },
+          { text: "Prazer em conhecê-lo", trans: "Nice to meet you" },
+          { text: "Onde fica o banheiro?", trans: "Where is the restroom?" }
+        ]
       },
       "Arabic": {
         flag: "🇸🇦",
         code: "ar-SA",
         greeting: "مرحبا! أهلا بك في درس اللغة العربية مع ElevenLabs AI Agent. ما اسمك؟",
-        phrases: ["• <strong>ما اسمك؟</strong> — What is your name?", "• <strong>سررت بلقائك</strong> — Nice to meet you", "• <strong>أين الحمام؟</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "ما اسمك؟", trans: "What is your name?" },
+          { text: "سررت بلقائك", trans: "Nice to meet you" },
+          { text: "أين الحمام؟", trans: "Where is the restroom?" }
+        ]
       },
       "English": {
         flag: "🇺🇸",
         code: "en-US",
         greeting: "Hello! Welcome to your ElevenLabs AI Agent English lesson. What is your name?",
-        phrases: ["• <strong>What is your name?</strong> — What is your name?", "• <strong>Nice to meet you</strong> — Nice to meet you", "• <strong>Where is the restroom?</strong> — Where is the restroom?"]
+        phrases: [
+          { text: "What is your name?", trans: "What is your name?" },
+          { text: "Nice to meet you", trans: "Nice to meet you" },
+          { text: "Where is the restroom?", trans: "Where is the restroom?" }
+        ]
       }
     };
 
@@ -780,10 +930,30 @@
       const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
       
       document.getElementById('h-lang-flag').innerText = conf.flag;
-      document.getElementById('phrasebook-list').innerHTML = conf.phrases.map(p => `<div>${p}</div>`).join('');
+      document.getElementById('phrasebook-list').innerHTML = conf.phrases.map(p => `
+        <div class="phrase-item">
+          <div><strong>${p.text}</strong> — ${p.trans}</div>
+          <button class="audio-btn" onclick="playElevenLabsSpeech('${p.text}')">🔊</button>
+        </div>
+      `).join('');
       document.getElementById('badge-curr-cefr').innerText = `CEFR ${document.getElementById('sel-cefr').value}`;
       
       alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
+    };
+
+    // Interactive Lesson Player
+    function openInteractiveLessonModal() {
+      document.getElementById('lesson-modal').style.display = 'flex';
+    }
+
+    function closeLessonModal() {
+      document.getElementById('lesson-modal').style.display = 'none';
+    }
+
+    document.getElementById('btn-start-lesson').onclick = openInteractiveLessonModal;
+    document.getElementById('btn-next-lesson-step').onclick = () => {
+      alert("🎉 Lesson 3 Completed! +50 XP Earned. Daily Goal updated!");
+      closeLessonModal();
     };
 
     // Create Custom ElevenLabs AI Agent via API
@@ -917,7 +1087,7 @@
 
     // ElevenLabs Text-to-Speech Voice Generation
     async function playElevenLabsSpeech(text, voiceId = "EXAVITQu4vr4xnSDxMaL") {
-      if (!elevenLabsApiKey || !isCallActive) return;
+      if (!elevenLabsApiKey) return;
       
       if (activeElevenLabsAudio) {
         activeElevenLabsAudio.pause();
@@ -926,7 +1096,7 @@
       }
 
       const sphere = document.getElementById('avatar-sphere');
-      sphere.classList.add('speaking');
+      if (sphere) sphere.classList.add('speaking');
 
       try {
         const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
@@ -946,22 +1116,22 @@
           })
         });
 
-        if (resp.ok && isCallActive) {
+        if (resp.ok) {
           const audioBlob = await resp.blob();
           const audioUrl = URL.createObjectURL(audioBlob);
           activeElevenLabsAudio = new Audio(audioUrl);
           
           activeElevenLabsAudio.onended = () => {
-            sphere.classList.remove('speaking');
+            if (sphere) sphere.classList.remove('speaking');
             activeElevenLabsAudio = null;
           };
           
           activeElevenLabsAudio.play();
         } else {
-          sphere.classList.remove('speaking');
+          if (sphere) sphere.classList.remove('speaking');
         }
       } catch (e) {
-        sphere.classList.remove('speaking');
+        if (sphere) sphere.classList.remove('speaking');
       }
     }
 
