@@ -296,6 +296,12 @@
       background: radial-gradient(circle, var(--accent-purple) 0%, var(--primary) 100%);
     }
 
+    .avatar-sphere.recording {
+      animation: pulse-active 0.5s infinite ease-in-out;
+      background: radial-gradient(circle, var(--accent-red) 0%, #991b1b 100%);
+      box-shadow: 0 10px 40px rgba(239, 68, 68, 0.5);
+    }
+
     @keyframes pulse {
       0% { transform: scale(1); box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25); }
       50% { transform: scale(1.05); box-shadow: 0 15px 45px rgba(79, 70, 229, 0.5); }
@@ -549,19 +555,21 @@
     <div class="avatar-sphere" id="avatar-sphere">🎙️</div>
 
     <div class="call-transcript-box" id="call-transcript">
-      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak or type below.</div>
+      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak naturally or hold the button below.</div>
     </div>
 
     <!-- Interactive Speech & Input Controls -->
     <div class="speech-input-group">
-      <input type="text" id="talk-text-input" placeholder="Speak or type your message here..." autocomplete="off" />
-      <button class="btn-primary" id="btn-send-speech" style="min-width:90px; width:auto; padding:0 16px;">
-        💬 Speak
+      <input type="text" id="talk-text-input" placeholder="Type message or hold mic below..." autocomplete="off" />
+      <button class="btn-primary" id="btn-send-speech" style="min-width:80px; width:auto; padding:0 14px;">
+        💬 Send
       </button>
     </div>
 
-    <div style="display:flex; gap:12px; width:100%; max-width:360px;">
-      <button class="btn-secondary" id="btn-mic-listen" style="flex:1;">🎤 Mic Listening</button>
+    <div style="display:flex; gap:10px; width:100%; max-width:360px;">
+      <button class="btn-primary" id="btn-mic-hold" style="flex:2; background:var(--primary);">
+        🎤 Tap / Hold to Speak
+      </button>
       <button class="btn-primary" id="btn-end-call" style="flex:1; background:var(--accent-red); color:#fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);">🔴 End Call</button>
     </div>
   </div>
@@ -726,6 +734,7 @@
     let activeMediaStream = null;
     let speechRecognition = null;
     let isCallActive = false;
+    let isRecordingVoice = false;
 
     // ElevenLabs Text-to-Speech Voice Generation
     async function playElevenLabsSpeech(text, voiceId = "EXAVITQu4vr4xnSDxMaL") {
@@ -841,6 +850,7 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
     // Strict ElevenLabs Token Safeguard Call Termination
     function endCallTokenSafeguard() {
       isCallActive = false;
+      isRecordingVoice = false;
 
       // Stop speech recognition
       if (speechRecognition) {
@@ -866,7 +876,10 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       }
 
       const sphere = document.getElementById('avatar-sphere');
-      if (sphere) sphere.classList.remove('speaking');
+      if (sphere) {
+        sphere.classList.remove('speaking');
+        sphere.classList.remove('recording');
+      }
 
       document.getElementById('call-status').innerText = "SESSION TERMINATED";
       document.getElementById('call-screen').style.display = 'none';
@@ -904,32 +917,55 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       }
     }
 
-    // Web Speech API Microphone Recognition Initialization
-    function setupMicrophoneRecognition(langCode) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return;
+    // Toggle Microphone Recording via Button
+    function toggleVoiceRecording() {
+      const btn = document.getElementById('btn-mic-hold');
+      const sphere = document.getElementById('avatar-sphere');
+      const langConfig = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
 
-      speechRecognition = new SpeechRecognition();
-      speechRecognition.continuous = false;
-      speechRecognition.interimResults = false;
-      speechRecognition.lang = langCode;
+      if (!isRecordingVoice) {
+        isRecordingVoice = true;
+        btn.innerText = "🛑 Stop & Process Speech";
+        btn.style.background = "var(--accent-red)";
+        sphere.classList.add('recording');
+        document.getElementById('call-status').innerText = "LISTENING TO MICROPHONE...";
 
-      speechRecognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        if (text && isCallActive) {
-          processLearnerTurn(text);
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+          speechRecognition = new SpeechRecognition();
+          speechRecognition.continuous = true;
+          speechRecognition.interimResults = true;
+          speechRecognition.lang = langConfig.code;
+
+          speechRecognition.onresult = (event) => {
+            let finalStr = "";
+            for (let i = 0; i < event.results.length; i++) {
+              finalStr += event.results[i][0].transcript;
+            }
+            document.getElementById('talk-text-input').value = finalStr;
+          };
+
+          try { speechRecognition.start(); } catch(e) {}
         }
-      };
+      } else {
+        isRecordingVoice = false;
+        btn.innerText = "🎤 Tap / Hold to Speak";
+        btn.style.background = "var(--primary)";
+        sphere.classList.remove('recording');
 
-      try {
-        speechRecognition.start();
-      } catch(e) {}
+        if (speechRecognition) {
+          try { speechRecognition.stop(); } catch(e) {}
+        }
+
+        const inputVal = document.getElementById('talk-text-input').value.trim();
+        if (inputVal) {
+          processLearnerTurn(inputVal);
+          document.getElementById('talk-text-input').value = "";
+        }
+      }
     }
 
-    document.getElementById('btn-mic-listen').onclick = () => {
-      const langConfig = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
-      setupMicrophoneRecognition(langConfig.code);
-    };
+    document.getElementById('btn-mic-hold').onclick = toggleVoiceRecording;
 
     document.getElementById('btn-send-speech').onclick = () => {
       const inputEl = document.getElementById('talk-text-input');
@@ -972,9 +1008,6 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       transcriptBox.innerHTML = `
         <div style="color:var(--text-main); font-weight:600; margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
       `;
-
-      // Initialize speech recognition with language code
-      setupMicrophoneRecognition(langConfig.code);
 
       const selectedVoice = document.getElementById('sel-eleven-voice').value;
       playElevenLabsSpeech(initialGreeting, selectedVoice);
