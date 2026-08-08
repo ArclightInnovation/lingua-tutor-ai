@@ -607,6 +607,7 @@
     });
 
     document.getElementById('btn-lock').onclick = () => {
+      endCallTokenSafeguard();
       sessionStorage.removeItem('linguo_auth_hash');
       location.reload();
     };
@@ -626,10 +627,22 @@
       };
     });
 
+    // Active Audio & Call Stream State Tracker
+    let activeElevenLabsAudio = null;
+    let activeMediaStream = null;
+    let isCallActive = false;
+
     // ElevenLabs Text-to-Speech Voice Generation
     async function playElevenLabsSpeech(text, voiceId = "EXAVITQu4vr4xnSDxMaL") {
-      if (!elevenLabsApiKey) return;
+      if (!elevenLabsApiKey || !isCallActive) return;
       
+      // Stop previous audio immediately
+      if (activeElevenLabsAudio) {
+        activeElevenLabsAudio.pause();
+        activeElevenLabsAudio.currentTime = 0;
+        activeElevenLabsAudio = null;
+      }
+
       const sphere = document.getElementById('avatar-sphere');
       sphere.classList.add('speaking');
 
@@ -651,20 +664,52 @@
           })
         });
 
-        if (resp.ok) {
+        if (resp.ok && isCallActive) {
           const audioBlob = await resp.blob();
           const audioUrl = URL.createObjectURL(audioBlob);
-          const audio = new Audio(audioUrl);
-          audio.onended = () => {
+          activeElevenLabsAudio = new Audio(audioUrl);
+          
+          activeElevenLabsAudio.onended = () => {
             sphere.classList.remove('speaking');
+            activeElevenLabsAudio = null;
           };
-          audio.play();
+          
+          activeElevenLabsAudio.play();
         } else {
           sphere.classList.remove('speaking');
         }
       } catch (e) {
         sphere.classList.remove('speaking');
       }
+    }
+
+    // Strict ElevenLabs Token Safeguard Call Termination
+    function endCallTokenSafeguard() {
+      isCallActive = false;
+
+      // 1. Immediately Stop Audio Playback
+      if (activeElevenLabsAudio) {
+        activeElevenLabsAudio.pause();
+        activeElevenLabsAudio.currentTime = 0;
+        activeElevenLabsAudio.src = "";
+        activeElevenLabsAudio = null;
+      }
+
+      // 2. Immediately Close and Release Microphone Streams
+      if (activeMediaStream) {
+        activeMediaStream.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+        activeMediaStream = null;
+      }
+
+      // 3. Reset Visual UI States
+      const sphere = document.getElementById('avatar-sphere');
+      if (sphere) sphere.classList.remove('speaking');
+
+      document.getElementById('call-status').innerText = "SESSION TERMINATED";
+      document.getElementById('call-screen').style.display = 'none';
     }
 
     // Gemini 3.1 Pro API Post-Call Analysis Call
@@ -701,12 +746,20 @@
     // Call Tutor Simulator & ElevenLabs Integration
     let callScenario = "Spanish Conversation Practice";
 
-    function startCall(scenario = "Spanish Conversation Practice") {
+    async function startCall(scenario = "Spanish Conversation Practice") {
+      isCallActive = true;
       callScenario = scenario;
       document.getElementById('call-scenario-title').innerText = scenario;
       document.getElementById('call-status').innerText = "ELEVENLABS AI TUTOR ACTIVE";
       document.getElementById('call-screen').style.display = 'flex';
       
+      // Request Microphone Stream to capture media
+      try {
+        activeMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (e) {
+        // Mic permission fallback
+      }
+
       const initialGreeting = "¡Hola! Bienvenido a tu clase de español. ¿Cómo te llamas?";
       
       const transcriptBox = document.getElementById('call-transcript');
@@ -718,8 +771,8 @@
       playElevenLabsSpeech(initialGreeting, selectedVoice);
     }
 
-    function endCall() {
-      document.getElementById('call-screen').style.display = 'none';
+    function handleEndCallClick() {
+      endCallTokenSafeguard();
       
       navBtns[2].click();
       const mockTranscript = "Learner: Hola, me llamo Alex.\nTutor: Mucho gusto Alex. ¿De dónde eres?\nLearner: Yo soy de Estados Unidos. Yo quiero aprendo español.";
@@ -727,13 +780,21 @@
     }
 
     document.getElementById('btn-quick-call').onclick = () => startCall("Casual Conversation Practice");
-    document.getElementById('btn-end-call').onclick = endCall;
+    document.getElementById('btn-end-call').onclick = handleEndCallClick;
 
     document.querySelectorAll('.scenario-btn').forEach(btn => {
       btn.onclick = () => {
         const sc = btn.getAttribute('data-scenario');
         startCall(sc);
       };
+    });
+
+    // Token Safeguards: Close Call on Unload / Visibility Hidden
+    window.addEventListener('beforeunload', endCallTokenSafeguard);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && isCallActive) {
+        endCallTokenSafeguard();
+      }
     });
 
     window.onload = () => {
