@@ -3,20 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>LingoTutor AI — Mobile Conversational Language Learning</title>
+  <title>LingoTutor AI — Conversational AI Language Platform</title>
   <style>
     :root {
-      --bg-main: #0a0e17;
-      --card-bg: #121926;
-      --card-border: #1e293b;
-      --primary: #38bdf8;
-      --primary-hover: #0284c7;
-      --accent-green: #22c55e;
+      --bg-main: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --accent-green: #10b981;
       --accent-amber: #f59e0b;
-      --accent-purple: #a855f7;
+      --accent-purple: #8b5cf6;
       --accent-red: #ef4444;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
     }
 
     * {
@@ -33,16 +37,16 @@
       height: 100%;
       background-color: var(--bg-main);
       color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
       touch-action: manipulation;
     }
 
-    /* Password Gate Overlay */
+    /* Password Authentication Screen */
     #auth-screen {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: #060911;
+      background: #f1f5f9;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -51,14 +55,14 @@
     }
 
     .auth-card {
-      background: #0f172a;
-      border: 1.5px solid var(--primary);
-      padding: 30px 24px;
-      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      padding: 32px 28px;
+      border-radius: 20px;
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       text-align: center;
-      box-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+      box-shadow: var(--shadow-lg);
     }
 
     /* Main App Layout */
@@ -76,39 +80,44 @@
     }
 
     header {
-      background: #0f172a;
+      background: #ffffff;
       border-bottom: 1px solid var(--card-border);
-      padding: 12px 16px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      min-height: 52px;
+      min-height: 56px;
+      box-shadow: var(--shadow-sm);
     }
 
     .app-title {
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: var(--primary);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      letter-spacing: -0.02em;
     }
 
     /* Main View Area */
     main {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 20px;
       -webkit-overflow-scrolling: touch;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
+      max-width: 768px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     .view-section {
       display: none;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
 
     .view-section.active {
@@ -119,11 +128,13 @@
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease, transform 0.15s ease;
     }
 
     .card-header {
@@ -133,20 +144,37 @@
     }
 
     .card-title {
-      font-size: 0.95rem;
-      font-weight: 600;
+      font-size: 1rem;
+      font-weight: 700;
       color: var(--text-main);
+      letter-spacing: -0.01em;
     }
+
+    /* Pill Badges */
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
 
     /* Bottom Navigation Bar */
     nav {
-      background: #0f172a;
+      background: #ffffff;
       border-top: 1px solid var(--card-border);
       display: flex;
       justify-content: space-around;
       align-items: center;
-      height: 64px;
+      height: 66px;
       padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
     }
 
     .nav-btn {
@@ -158,10 +186,11 @@
       align-items: center;
       gap: 4px;
       font-size: 0.72rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       flex: 1;
       padding: 8px 0;
+      transition: color 0.15s ease;
     }
 
     .nav-btn.active {
@@ -169,17 +198,17 @@
     }
 
     .nav-icon {
-      font-size: 1.25rem;
+      font-size: 1.3rem;
     }
 
     /* Buttons */
     button.btn-primary {
       background: var(--primary);
-      color: #000;
+      color: #ffffff;
       font-weight: 600;
       border: none;
-      border-radius: 10px;
-      padding: 12px 16px;
+      border-radius: 12px;
+      padding: 14px 20px;
       font-size: 0.95rem;
       min-height: 48px;
       cursor: pointer;
@@ -188,89 +217,109 @@
       justify-content: center;
       gap: 8px;
       width: 100%;
-      transition: background 0.15s ease;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    button.btn-primary:hover {
+      background: var(--primary-hover);
     }
 
     button.btn-primary:active {
-      background: var(--primary-hover);
       transform: scale(0.98);
     }
 
     button.btn-secondary {
-      background: #1e293b;
+      background: #f1f5f9;
       color: var(--text-main);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 10px 14px;
+      border-radius: 12px;
+      padding: 12px 16px;
       font-size: 0.88rem;
+      font-weight: 600;
       min-height: 44px;
       cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    button.btn-secondary:hover {
+      background: #e2e8f0;
     }
 
     input, select {
       width: 100%;
-      padding: 12px;
-      background: #090d16;
+      padding: 12px 14px;
+      background: #ffffff;
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
     }
 
     /* Call Tutor Overlay Screen */
     #call-screen {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: #070a13;
+      background: #f8fafc;
       display: none;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      padding: 24px 20px;
+      padding: 32px 24px;
       z-index: 99999;
     }
 
     .avatar-sphere {
-      width: 120px;
-      height: 120px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
-      background: radial-gradient(circle, var(--primary) 0%, #0284c7 100%);
-      box-shadow: 0 0 40px rgba(56, 189, 248, 0.4);
+      background: radial-gradient(circle, var(--primary) 0%, #312e81 100%);
+      box-shadow: 0 10px 40px rgba(79, 70, 229, 0.35);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 3rem;
-      animation: pulse 2s infinite ease-in-out;
+      font-size: 3.2rem;
+      animation: pulse 2.2s infinite ease-in-out;
       margin-top: 20px;
+      color: #fff;
     }
 
     .avatar-sphere.speaking {
       animation: pulse-active 0.8s infinite ease-in-out;
-      background: radial-gradient(circle, var(--accent-purple) 0%, #0284c7 100%);
+      background: radial-gradient(circle, var(--accent-purple) 0%, var(--primary) 100%);
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
-      50% { transform: scale(1.06); box-shadow: 0 0 50px rgba(56, 189, 248, 0.6); }
-      100% { transform: scale(1); box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
+      0% { transform: scale(1); box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25); }
+      50% { transform: scale(1.05); box-shadow: 0 15px 45px rgba(79, 70, 229, 0.5); }
+      100% { transform: scale(1); box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25); }
     }
 
     @keyframes pulse-active {
-      0% { transform: scale(1); box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); }
-      50% { transform: scale(1.1); box-shadow: 0 0 60px rgba(168, 85, 247, 0.8); }
-      100% { transform: scale(1); box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); }
+      0% { transform: scale(1); box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3); }
+      50% { transform: scale(1.08); box-shadow: 0 20px 60px rgba(139, 92, 246, 0.6); }
+      100% { transform: scale(1); box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3); }
     }
 
     .call-transcript-box {
       width: 100%;
-      height: 200px;
-      background: #0f172a;
+      max-width: 500px;
+      height: 220px;
+      background: #ffffff;
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 16px;
+      padding: 16px;
       overflow-y: auto;
-      font-size: 0.88rem;
-      color: var(--text-muted);
+      font-size: 0.9rem;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
     }
   </style>
 </head>
@@ -279,13 +328,13 @@
   <!-- Password Authentication Gate -->
   <div id="auth-screen">
     <div class="auth-card">
-      <div style="font-size:2.5rem; margin-bottom:12px;">🌐</div>
-      <div style="font-size:1.2rem; font-weight:700; color:var(--primary);">LINGOTUTOR AI</div>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin:8px 0 16px 0;">
-        Enter passcode to unlock your personal AI language tutor:
+      <div style="font-size:2.8rem; margin-bottom:12px;">🌐</div>
+      <div style="font-size:1.3rem; font-weight:800; color:var(--primary); letter-spacing:-0.02em;">LingoTutor AI</div>
+      <p style="font-size:0.88rem; color:var(--text-muted); margin:8px 0 20px 0;">
+        Enter passcode to unlock your personal AI language tutor platform:
       </p>
       <input type="password" id="auth-passcode" placeholder="Enter security passcode..." autocomplete="off" />
-      <div id="auth-error" style="color:var(--accent-red); font-size:0.82rem; margin-bottom:10px; display:none;">
+      <div id="auth-error" style="color:var(--accent-red); font-size:0.82rem; margin-bottom:12px; display:none; font-weight:600;">
         ❌ Invalid Passcode
       </div>
       <button class="btn-primary" id="btn-unlock">UNLOCK PLATFORM</button>
@@ -299,48 +348,48 @@
         <span>🌐</span> LingoTutor AI
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn-secondary" id="btn-lock" style="min-height:36px; padding:4px 10px; color:var(--accent-red); border-color:var(--accent-red);">🔒 Lock</button>
+        <button class="btn-secondary" id="btn-lock" style="min-height:36px; padding:4px 12px; color:var(--accent-red); border-color:#fca5a5; background:#fef2f2;">🔒 Lock</button>
       </div>
     </header>
 
     <main>
       <!-- 🏠 HOME VIEW -->
       <div id="view-home" class="view-section active">
-        <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-color: var(--primary);">
+        <div class="card" style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-color: #c7d2fe;">
           <div class="card-header">
             <div>
-              <div style="font-size:0.8rem; color:var(--primary); font-weight:600;">CONTINUE LEARNING</div>
-              <div style="font-size:1.1rem; font-weight:700;" id="h-unit-title">Unit 1: Introductions & Greetings</div>
+              <span class="badge badge-primary">CONTINUE LEARNING</span>
+              <div style="font-size:1.2rem; font-weight:800; color:var(--text-main); margin-top:6px;" id="h-unit-title">Unit 1: Introductions & Greetings</div>
             </div>
-            <span style="font-size:1.5rem;">🇪🇸</span>
+            <span style="font-size:2rem;">🇪🇸</span>
           </div>
-          <p style="font-size:0.85rem; color:var(--text-muted);" id="h-lesson-desc">Lesson 3: Asking someone's name & hometown</p>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin:0;" id="h-lesson-desc">Lesson 3: Asking someone's name & hometown</p>
           <button class="btn-primary" id="btn-start-lesson">▶ Start Lesson 3 (7 mins)</button>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-          <div class="card" style="align-items:center; text-align:center;">
-            <div style="font-size:1.5rem;">🔥</div>
-            <div style="font-size:1.2rem; font-weight:700;" id="h-streak">5 Days</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">Study Streak</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="card" style="align-items:center; text-align:center; padding:16px;">
+            <div style="font-size:1.6rem; margin-bottom:4px;">🔥</div>
+            <div style="font-size:1.3rem; font-weight:800; color:var(--text-main);" id="h-streak">5 Days</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Study Streak</div>
           </div>
-          <div class="card" style="align-items:center; text-align:center;">
-            <div style="font-size:1.5rem;">⚡</div>
-            <div style="font-size:1.2rem; font-weight:700;" id="h-xp">450 XP</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">Total Points</div>
+          <div class="card" style="align-items:center; text-align:center; padding:16px;">
+            <div style="font-size:1.6rem; margin-bottom:4px;">⚡</div>
+            <div style="font-size:1.3rem; font-weight:800; color:var(--text-main);" id="h-xp">450 XP</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Total Points</div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-title">📅 Today's Recommended Plan (20 Min)</div>
-          <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px;">
-            <div>✅ 5 min — Vocabulary Spaced Review (8 words due)</div>
-            <div>▶ 8 min — Lesson 3: Introducing Yourself</div>
-            <div>🎙️ 7 min — Speak with ElevenLabs AI Voice Tutor</div>
+          <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:10px; color:var(--text-muted);">
+            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-green); font-weight:700;">✓</span> 5 min — Vocabulary Spaced Review (8 words due)</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--primary); font-weight:700;">▶</span> 8 min — Lesson 3: Introducing Yourself</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-purple); font-weight:700;">🎙️</span> 7 min — Speak with ElevenLabs AI Voice Tutor</div>
           </div>
         </div>
 
-        <button class="btn-primary" id="btn-quick-call" style="background: linear-gradient(135deg, #0284c7 0%, #a855f7 100%); color:#fff;">
+        <button class="btn-primary" id="btn-quick-call" style="background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);">
           🎙️ Quick Call ElevenLabs AI Tutor
         </button>
       </div>
@@ -348,19 +397,22 @@
       <!-- 📚 LEARN VIEW -->
       <div id="view-learn" class="view-section">
         <div class="card">
-          <div class="card-title">📚 Course Curriculum (CEFR A1)</div>
-          <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
-            <div class="card" style="background:#090d16;">
-              <div style="font-size:0.9rem; font-weight:700; color:var(--primary);">Unit 1: Introductions</div>
-              <div style="font-size:0.8rem; color:var(--text-muted);">Lesson 1: Saying Hello (Completed ✓)</div>
-              <div style="font-size:0.8rem; color:var(--text-muted);">Lesson 2: Introducing Yourself (Completed ✓)</div>
-              <div style="font-size:0.8rem; color:var(--primary); font-weight:600;">Lesson 3: Asking Someone's Name (In Progress ▶)</div>
-              <div style="font-size:0.8rem; color:var(--text-muted);">Lesson 4: Where Are You From?</div>
+          <div class="card-header">
+            <div class="card-title">📚 Course Curriculum</div>
+            <span class="badge badge-primary">CEFR A1</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
+            <div class="card" style="background:#f8fafc; border-color:var(--card-border); padding:14px;">
+              <div style="font-size:0.95rem; font-weight:700; color:var(--primary);">Unit 1: Introductions</div>
+              <div style="font-size:0.85rem; color:var(--accent-green); font-weight:600; margin-top:4px;">✓ Lesson 1: Saying Hello</div>
+              <div style="font-size:0.85rem; color:var(--accent-green); font-weight:600;">✓ Lesson 2: Introducing Yourself</div>
+              <div style="font-size:0.85rem; color:var(--primary); font-weight:700;">▶ Lesson 3: Asking Someone's Name</div>
+              <div style="font-size:0.85rem; color:var(--text-muted);">○ Lesson 4: Where Are You From?</div>
             </div>
-            <div class="card" style="background:#090d16;">
-              <div style="font-size:0.9rem; font-weight:700;">Unit 2: At the Cafe & Restaurant</div>
-              <div style="font-size:0.8rem; color:var(--text-muted);">Lesson 1: Ordering Coffee & Drinks</div>
-              <div style="font-size:0.8rem; color:var(--text-muted);">Lesson 2: Paying the Bill</div>
+            <div class="card" style="background:#f8fafc; border-color:var(--card-border); padding:14px;">
+              <div style="font-size:0.95rem; font-weight:700;">Unit 2: At the Cafe & Restaurant</div>
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">○ Lesson 1: Ordering Coffee & Drinks</div>
+              <div style="font-size:0.85rem; color:var(--text-muted);">○ Lesson 2: Paying the Bill</div>
             </div>
           </div>
         </div>
@@ -370,43 +422,46 @@
       <div id="view-talk" class="view-section">
         <div class="card">
           <div class="card-title">🎙️ ElevenLabs AI Spoken Roleplay Scenarios</div>
-          <p style="font-size:0.85rem; color:var(--text-muted);">Practice real-time spoken conversations with realistic ElevenLabs voice models.</p>
-          <div style="display:flex; flex-direction:column; gap:8px;">
-            <button class="btn-secondary scenario-btn" data-scenario="Ordering at a Madrid Restaurant" style="text-align:left;">
+          <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">Practice real-time spoken conversations with realistic ElevenLabs voice models.</p>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+            <button class="btn-secondary scenario-btn" data-scenario="Ordering at a Madrid Restaurant" style="text-align:left; justify-content:flex-start;">
               🍷 Ordering at a Restaurant
             </button>
-            <button class="btn-secondary scenario-btn" data-scenario="Checking into a Hotel" style="text-align:left;">
+            <button class="btn-secondary scenario-btn" data-scenario="Checking into a Hotel" style="text-align:left; justify-content:flex-start;">
               🏨 Checking into a Hotel
             </button>
-            <button class="btn-secondary scenario-btn" data-scenario="Asking for Directions" style="text-align:left;">
+            <button class="btn-secondary scenario-btn" data-scenario="Asking for Directions" style="text-align:left; justify-content:flex-start;">
               🗺️ Asking for Directions
             </button>
-            <button class="btn-secondary scenario-btn" data-scenario="Casual Conversation" style="text-align:left;">
+            <button class="btn-secondary scenario-btn" data-scenario="Casual Conversation" style="text-align:left; justify-content:flex-start;">
               💬 Casual Free Speech Practice
             </button>
           </div>
         </div>
 
-        <div class="card" id="analysis-card" style="display:none;">
-          <div class="card-title" style="color:var(--accent-purple);">📊 Gemini 3.1 Pro Post-Call Analysis</div>
-          <div id="analysis-content" style="font-size:0.85rem; line-height:1.4;"></div>
+        <div class="card" id="analysis-card" style="display:none; background:#f0fdf4; border-color:#bbf7d0;">
+          <div class="card-title" style="color:#166534;">📊 Gemini 3.1 Pro Post-Call Analysis</div>
+          <div id="analysis-content" style="font-size:0.88rem; line-height:1.5; color:#14532d;"></div>
         </div>
       </div>
 
       <!-- 🔄 REVIEW VIEW -->
       <div id="view-review" class="view-section">
         <div class="card">
-          <div class="card-title">🔄 Spaced Repetition Vocabulary Bank (SM-2)</div>
-          <p style="font-size:0.82rem; color:var(--text-muted);">8 words ready for review today based on memory decay.</p>
+          <div class="card-header">
+            <div class="card-title">🔄 Spaced Repetition Vocabulary Bank</div>
+            <span class="badge badge-amber">SM-2 Algorithm</span>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">8 words ready for review today based on memory decay curves.</p>
           <button class="btn-primary" id="btn-start-review">🎴 Start Flashcard Review</button>
         </div>
 
         <div class="card">
           <div class="card-title">📕 Personal Phrasebook</div>
-          <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:6px;">
-            <div>• <em>¿Cómo te llamas?</em> — What is your name?</div>
-            <div>• <em>Mucho gusto en conocerte</em> — Nice to meet you</div>
-            <div>• <em>¿Dónde está el baño?</em> — Where is the restroom?</div>
+          <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);">
+            <div>• <strong>¿Cómo te llamas?</strong> — What is your name?</div>
+            <div>• <strong>Mucho gusto en conocerte</strong> — Nice to meet you</div>
+            <div>• <strong>¿Dónde está el baño?</strong> — Where is the restroom?</div>
           </div>
         </div>
       </div>
@@ -416,7 +471,7 @@
         <div class="card">
           <div class="card-title">👤 Learner Profile & Settings</div>
           
-          <label style="font-size:0.8rem; color:var(--text-muted);">Target Language:</label>
+          <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">Target Language:</label>
           <select id="sel-target-lang">
             <option value="Spanish">Spanish 🇪🇸</option>
             <option value="French">French 🇫🇷</option>
@@ -430,24 +485,24 @@
             <option value="English">English 🇺🇸</option>
           </select>
 
-          <label style="font-size:0.8rem; color:var(--text-muted);">ElevenLabs Voice Model:</label>
+          <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">ElevenLabs Voice Model:</label>
           <select id="sel-eleven-voice">
             <option value="EXAVITQu4vr4xnSDxMaL">Sarah (Warm, Reassuring)</option>
             <option value="CwhRBWXzGAHq8TQ4Fs17">Roger (Casual, Resonant)</option>
             <option value="IKne3meq5aSn9XLyUdCD">Charlie (Energetic)</option>
           </select>
 
-          <label style="font-size:0.8rem; color:var(--text-muted);">CEFR Proficiency Level:</label>
+          <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">CEFR Proficiency Level:</label>
           <select id="sel-cefr">
             <option value="Pre-A1">Pre-A1 (Absolute Beginner)</option>
-            <option value="A1">A1 (Beginner)</option>
+            <option value="A1" selected>A1 (Beginner)</option>
             <option value="A2">A2 (Elementary)</option>
             <option value="B1">B1 (Intermediate)</option>
             <option value="B2">B2 (Upper Intermediate)</option>
             <option value="C1">C1 (Advanced)</option>
           </select>
 
-          <button class="btn-primary" id="btn-save-profile">Save Profile</button>
+          <button class="btn-primary" id="btn-save-profile">Save Settings</button>
         </div>
       </div>
     </main>
@@ -480,8 +535,8 @@
   <!-- Real-Time AI Tutor Call Overlay Screen -->
   <div id="call-screen">
     <div style="text-align:center;">
-      <div style="font-size:0.85rem; color:var(--primary); font-weight:600;" id="call-status">CONNECTING TO ELEVENLABS VOICE TUTOR...</div>
-      <div style="font-size:1.2rem; font-weight:700; margin-top:4px;" id="call-scenario-title">Spanish Conversation Practice</div>
+      <span class="badge badge-primary" id="call-status">ELEVENLABS AI TUTOR ACTIVE</span>
+      <div style="font-size:1.25rem; font-weight:800; margin-top:8px; color:var(--text-main);" id="call-scenario-title">Spanish Conversation Practice</div>
     </div>
 
     <div class="avatar-sphere" id="avatar-sphere">🎙️</div>
@@ -490,9 +545,9 @@
       <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak naturally.</div>
     </div>
 
-    <div style="display:flex; gap:12px; width:100%; max-width:320px;">
+    <div style="display:flex; gap:12px; width:100%; max-width:360px;">
       <button class="btn-secondary" id="btn-mute" style="flex:1;">🎤 Mute</button>
-      <button class="btn-primary" id="btn-end-call" style="flex:1; background:var(--accent-red); color:#fff;">🔴 End Call</button>
+      <button class="btn-primary" id="btn-end-call" style="flex:1; background:var(--accent-red); color:#fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);">🔴 End Call</button>
     </div>
   </div>
 
@@ -656,7 +711,7 @@
       
       const transcriptBox = document.getElementById('call-transcript');
       transcriptBox.innerHTML = `
-        <div style="color:var(--primary); margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
+        <div style="color:var(--primary); font-weight:600; margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
       `;
 
       const selectedVoice = document.getElementById('sel-eleven-voice').value;
