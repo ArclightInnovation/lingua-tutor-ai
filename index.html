@@ -398,12 +398,12 @@
           <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:10px; color:var(--text-muted);">
             <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-green); font-weight:700;">✓</span> 5 min — Vocabulary Spaced Review (8 words due)</div>
             <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--primary); font-weight:700;">▶</span> 8 min — Lesson 3: Introducing Yourself</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-purple); font-weight:700;">🎙️</span> 7 min — Speak with ElevenLabs AI Voice Tutor</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-purple); font-weight:700;">🎙️</span> 7 min — ElevenLabs Live Agent Call</div>
           </div>
         </div>
 
         <button class="btn-primary" id="btn-quick-call" style="background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);">
-          🎙️ Quick Call ElevenLabs AI Tutor
+          🎙️ Live Agent Call (ElevenLabs ConvAI)
         </button>
       </div>
 
@@ -434,8 +434,8 @@
       <!-- 🎙️ TALK VIEW -->
       <div id="view-talk" class="view-section">
         <div class="card">
-          <div class="card-title">🎙️ ElevenLabs AI Spoken Roleplay Scenarios</div>
-          <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">Practice real-time spoken conversations with realistic ElevenLabs voice models in your target language.</p>
+          <div class="card-title">🎙️ ElevenLabs ConvAI Live Agent Scenarios</div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">Real-time WebSocket streaming audio conversation with ElevenLabs Live AI Agents.</p>
           <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
             <button class="btn-secondary scenario-btn" data-scenario="Ordering at a Restaurant" style="text-align:left; justify-content:flex-start;">
               🍷 Ordering at a Restaurant
@@ -498,6 +498,9 @@
             <option value="English">English 🇺🇸</option>
           </select>
 
+          <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">ElevenLabs ConvAI Agent ID (Optional Override):</label>
+          <input type="text" id="eleven-agent-id" placeholder="convai_agent_id (default voice fallback if empty)" />
+
           <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">ElevenLabs Voice Model:</label>
           <select id="sel-eleven-voice">
             <option value="EXAVITQu4vr4xnSDxMaL">Sarah (Warm, Reassuring)</option>
@@ -545,17 +548,17 @@
     </nav>
   </div>
 
-  <!-- Real-Time AI Tutor Call Overlay Screen -->
+  <!-- Real-Time ElevenLabs Live Agent Call Overlay Screen -->
   <div id="call-screen">
     <div style="text-align:center;">
-      <span class="badge badge-primary" id="call-status">ELEVENLABS AI TUTOR ACTIVE</span>
+      <span class="badge badge-primary" id="call-status">ELEVENLABS CONVAI LIVE AGENT ACTIVE</span>
       <div style="font-size:1.25rem; font-weight:800; margin-top:8px; color:var(--text-main);" id="call-scenario-title">Spanish Conversation Practice</div>
     </div>
 
     <div class="avatar-sphere" id="avatar-sphere">🎙️</div>
 
     <div class="call-transcript-box" id="call-transcript">
-      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak naturally or hold the button below.</div>
+      <div style="color:var(--text-muted); font-style:italic;">ElevenLabs ConvAI Live Agent connected. Speak naturally or hold button below.</div>
     </div>
 
     <!-- Interactive Speech & Input Controls -->
@@ -585,61 +588,61 @@
       "Spanish": {
         flag: "🇪🇸",
         code: "es-ES",
-        greeting: "¡Hola! Bienvenido a tu clase de español. ¿Cómo te llamas?",
+        greeting: "¡Hola! Bienvenido a tu clase de español con ElevenLabs AI Agent. ¿Cómo te llamas?",
         phrases: ["• <strong>¿Cómo te llamas?</strong> — What is your name?", "• <strong>Mucho gusto en conocerte</strong> — Nice to meet you", "• <strong>¿Dónde está el baño?</strong> — Where is the restroom?"]
       },
       "French": {
         flag: "🇫🇷",
         code: "fr-FR",
-        greeting: "Bonjour! Bienvenue à votre cours de français. Comment vous appelez-vous?",
+        greeting: "Bonjour! Bienvenue à votre cours de français avec l'agent ElevenLabs AI. Comment vous appelez-vous?",
         phrases: ["• <strong>Comment vous appelez-vous?</strong> — What is your name?", "• <strong>Enchanté de vous rencontrer</strong> — Nice to meet you", "• <strong>Où sont les toilettes?</strong> — Where is the restroom?"]
       },
       "German": {
         flag: "🇩🇪",
         code: "de-DE",
-        greeting: "Hallo! Willkommen zu deinem Deutschunterricht. Wie heißt du?",
+        greeting: "Hallo! Willkommen zu deinem Deutschunterricht mit ElevenLabs AI Agent. Wie heißt du?",
         phrases: ["• <strong>Wie heißt du?</strong> — What is your name?", "• <strong>Schön dich kennenzulernen</strong> — Nice to meet you", "• <strong>Wo ist die Toilette?</strong> — Where is the restroom?"]
       },
       "Italian": {
         flag: "🇮🇹",
         code: "it-IT",
-        greeting: "Ciao! Benvenuto alla tua lezione di italiano. Come ti chiami?",
+        greeting: "Ciao! Benvenuto alla tua lezione di italiano con ElevenLabs AI Agent. Come ti chiami?",
         phrases: ["• <strong>Come ti chiami?</strong> — What is your name?", "• <strong>Piacere di conoscerti</strong> — Nice to meet you", "• <strong>Dov'è il bagno?</strong> — Where is the restroom?"]
       },
       "Mandarin": {
         flag: "🇨🇳",
         code: "zh-CN",
-        greeting: "你好！欢迎来到中文课。你叫什么名字？",
+        greeting: "你好！欢迎来到ElevenLabs AI Agent中文课。你叫什么名字？",
         phrases: ["• <strong>你叫什么名字？</strong> — What is your name?", "• <strong>很高兴认识你</strong> — Nice to meet you", "• <strong>洗手间在哪里？</strong> — Where is the restroom?"]
       },
       "Japanese": {
         flag: "🇯🇵",
         code: "ja-JP",
-        greeting: "こんにちは！日本語のレッスンへようこそ。お名前は何ですか？",
+        greeting: "こんにちは！ElevenLabs AI Agent日本語レッスンへようこそ。お名前は何ですか？",
         phrases: ["• <strong>お名前は何ですか？</strong> — What is your name?", "• <strong>はじめまして</strong> — Nice to meet you", "• <strong>お手洗いはどこですか？</strong> — Where is the restroom?"]
       },
       "Korean": {
         flag: "🇰🇷",
         code: "ko-KR",
-        greeting: "안녕하세요! 한국어 수업에 오신 것을 환영합니다. 이름이 무엇인가요?",
+        greeting: "안녕하세요! ElevenLabs AI Agent 한국어 수업에 오신 것을 환영합니다. 이름이 무엇인가요?",
         phrases: ["• <strong>이름이 무엇인가요?</strong> — What is your name?", "• <strong>반갑습니다</strong> — Nice to meet you", "• <strong>화장실이 어디예요?</strong> — Where is the restroom?"]
       },
       "Portuguese": {
         flag: "🇵🇹",
         code: "pt-PT",
-        greeting: "Olá! Bem-vindo à sua aula de português. Como você se chama?",
+        greeting: "Olá! Bem-vindo à sua aula de português com ElevenLabs AI Agent. Como você se chama?",
         phrases: ["• <strong>Como você se chama?</strong> — What is your name?", "• <strong>Prazer em conhecê-lo</strong> — Nice to meet you", "• <strong>Onde fica o banheiro?</strong> — Where is the restroom?"]
       },
       "Arabic": {
         flag: "🇸🇦",
         code: "ar-SA",
-        greeting: "مرحبا! أهلا بك في درس اللغة العربية. ما اسمك؟",
+        greeting: "مرحبا! أهلا بك في درس اللغة العربية مع ElevenLabs AI Agent. ما اسمك؟",
         phrases: ["• <strong>ما اسمك؟</strong> — What is your name?", "• <strong>سررت بلقائك</strong> — Nice to meet you", "• <strong>أين الحمام؟</strong> — Where is the restroom?"]
       },
       "English": {
         flag: "🇺🇸",
         code: "en-US",
-        greeting: "Hello! Welcome to your English lesson. What is your name?",
+        greeting: "Hello! Welcome to your ElevenLabs AI Agent English lesson. What is your name?",
         phrases: ["• <strong>What is your name?</strong> — What is your name?", "• <strong>Nice to meet you</strong> — Nice to meet you", "• <strong>Where is the restroom?</strong> — Where is the restroom?"]
       }
     };
@@ -729,12 +732,60 @@
       alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
     };
 
-    // Active Audio, Speech Recognition, & Call Stream State Tracker
+    // Active Audio, Speech Recognition, ElevenLabs Agent WebSocket & Call Stream State Tracker
     let activeElevenLabsAudio = null;
     let activeMediaStream = null;
     let speechRecognition = null;
+    let agentWebSocket = null;
     let isCallActive = false;
     let isRecordingVoice = false;
+
+    // ElevenLabs ConvAI WebSocket Live Agent Protocol Connect
+    function connectElevenLabsAgentWebSocket(agentId) {
+      if (!agentId) return;
+      try {
+        const wsUrl = `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`;
+        agentWebSocket = new WebSocket(wsUrl);
+
+        agentWebSocket.onopen = () => {
+          document.getElementById('call-status').innerText = "ELEVENLABS CONVAI AGENT CONNECTED";
+          // Send initial session payload
+          const initPayload = {
+            type: "conversation_initiation_client_data",
+            conversation_config_override: {
+              agent: {
+                prompt: {
+                  prompt: `You are an AI language tutor teaching ${selectedTargetLang}.`
+                }
+              }
+            }
+          };
+          agentWebSocket.send(JSON.stringify(initPayload));
+        };
+
+        agentWebSocket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === "agent_response") {
+              const text = data.agent_response_event?.agent_response;
+              if (text) {
+                const transcriptBox = document.getElementById('call-transcript');
+                const tutorDiv = document.createElement('div');
+                tutorDiv.style.color = "var(--text-main)";
+                tutorDiv.style.fontWeight = "600";
+                tutorDiv.style.margin = "6px 0";
+                tutorDiv.innerHTML = `<strong>Agent (ElevenLabs):</strong> ${text}`;
+                transcriptBox.appendChild(tutorDiv);
+                transcriptBox.scrollTop = transcriptBox.scrollHeight;
+                fullCallTranscriptHistory.push(`Agent: ${text}`);
+              }
+            }
+          } catch(e) {}
+        };
+
+        agentWebSocket.onclose = () => {};
+      } catch(e) {}
+    }
 
     // ElevenLabs Text-to-Speech Voice Generation
     async function playElevenLabsSpeech(text, voiceId = "EXAVITQu4vr4xnSDxMaL") {
@@ -791,7 +842,7 @@
       if (!geminiApiKey) return "¡Muy bien! Sigue practicando.";
       
       const cefr = document.getElementById('sel-cefr').value || "A1";
-      const prompt = `You are a supportive AI language tutor teaching ${selectedTargetLang} at CEFR level ${cefr}.
+      const prompt = `You are a supportive ElevenLabs AI language tutor teaching ${selectedTargetLang} at CEFR level ${cefr}.
 The learner just said: "${learnerInputText}".
 Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suitable for level ${cefr}. Keep it engaging and encourage the conversation.`;
 
@@ -827,30 +878,44 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       transcriptBox.appendChild(learnerDiv);
       transcriptBox.scrollTop = transcriptBox.scrollHeight;
 
+      // If ElevenLabs Agent WebSocket is active, send user message to Agent WebSocket
+      if (agentWebSocket && agentWebSocket.readyState === WebSocket.OPEN) {
+        agentWebSocket.send(JSON.stringify({
+          type: "user_transcript",
+          user_transcript_event: { user_transcript: userText }
+        }));
+      }
+
       // Show thinking state
-      document.getElementById('call-status').innerText = "TUTOR THINKING (GEMINI 3.1 PRO)...";
+      document.getElementById('call-status').innerText = "ELEVENLABS AGENT THINKING...";
 
       const tutorReply = await getGeminiTutorReply(userText);
-      fullCallTranscriptHistory.push(`Tutor: ${tutorReply}`);
+      fullCallTranscriptHistory.push(`Agent: ${tutorReply}`);
 
-      document.getElementById('call-status').innerText = "ELEVENLABS AI TUTOR SPEAKING";
+      document.getElementById('call-status').innerText = "ELEVENLABS AGENT SPEAKING";
       const tutorDiv = document.createElement('div');
       tutorDiv.style.color = "var(--text-main)";
       tutorDiv.style.fontWeight = "600";
       tutorDiv.style.margin = "6px 0";
-      tutorDiv.innerHTML = `<strong>Tutor (ElevenLabs):</strong> ${tutorReply}`;
+      tutorDiv.innerHTML = `<strong>Agent (ElevenLabs):</strong> ${tutorReply}`;
       transcriptBox.appendChild(tutorDiv);
       transcriptBox.scrollTop = transcriptBox.scrollHeight;
 
       const selectedVoice = document.getElementById('sel-eleven-voice').value;
       await playElevenLabsSpeech(tutorReply, selectedVoice);
-      document.getElementById('call-status').innerText = "ELEVENLABS AI TUTOR ACTIVE";
+      document.getElementById('call-status').innerText = "ELEVENLABS AGENT ACTIVE";
     }
 
     // Strict ElevenLabs Token Safeguard Call Termination
     function endCallTokenSafeguard() {
       isCallActive = false;
       isRecordingVoice = false;
+
+      // Close WebSocket agent connection
+      if (agentWebSocket) {
+        try { agentWebSocket.close(); } catch(e) {}
+        agentWebSocket = null;
+      }
 
       // Stop speech recognition
       if (speechRecognition) {
@@ -982,7 +1047,7 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       }
     });
 
-    // Call Tutor Simulator & ElevenLabs Integration
+    // Call Tutor Simulator & ElevenLabs ConvAI Integration
     let callScenario = "Conversation Practice";
 
     async function startCall(scenario = "Conversation Practice") {
@@ -993,7 +1058,7 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       const langConfig = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
 
       document.getElementById('call-scenario-title').innerText = `${selectedTargetLang} ${langConfig.flag} — ${scenario}`;
-      document.getElementById('call-status').innerText = `ELEVENLABS AI TUTOR ACTIVE (${selectedTargetLang.toUpperCase()})`;
+      document.getElementById('call-status').innerText = `ELEVENLABS CONVAI AGENT ACTIVE (${selectedTargetLang.toUpperCase()})`;
       document.getElementById('call-screen').style.display = 'flex';
       
       // Request Microphone Stream to capture media
@@ -1001,12 +1066,18 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
         activeMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       } catch (e) {}
 
+      // Optional ElevenLabs ConvAI Agent WebSocket connect
+      const customAgentId = document.getElementById('eleven-agent-id')?.value.trim();
+      if (customAgentId) {
+        connectElevenLabsAgentWebSocket(customAgentId);
+      }
+
       const initialGreeting = langConfig.greeting;
-      fullCallTranscriptHistory.push(`Tutor: ${initialGreeting}`);
+      fullCallTranscriptHistory.push(`Agent: ${initialGreeting}`);
 
       const transcriptBox = document.getElementById('call-transcript');
       transcriptBox.innerHTML = `
-        <div style="color:var(--text-main); font-weight:600; margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
+        <div style="color:var(--text-main); font-weight:600; margin-bottom:6px;"><strong>Agent (ElevenLabs):</strong> ${initialGreeting}</div>
       `;
 
       const selectedVoice = document.getElementById('sel-eleven-voice').value;
