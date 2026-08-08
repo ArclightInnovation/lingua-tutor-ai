@@ -272,22 +272,22 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      padding: 32px 24px;
+      padding: 24px 20px;
       z-index: 99999;
     }
 
     .avatar-sphere {
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       background: radial-gradient(circle, var(--primary) 0%, #312e81 100%);
       box-shadow: 0 10px 40px rgba(79, 70, 229, 0.35);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 3.2rem;
+      font-size: 3rem;
       animation: pulse 2.2s infinite ease-in-out;
-      margin-top: 20px;
+      margin-top: 10px;
       color: #fff;
     }
 
@@ -311,15 +311,22 @@
     .call-transcript-box {
       width: 100%;
       max-width: 500px;
-      height: 220px;
+      height: 180px;
       background: #ffffff;
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 16px;
+      padding: 14px;
       overflow-y: auto;
       font-size: 0.9rem;
       color: var(--text-main);
       box-shadow: var(--shadow-sm);
+    }
+
+    .speech-input-group {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      gap: 8px;
     }
   </style>
 </head>
@@ -542,11 +549,19 @@
     <div class="avatar-sphere" id="avatar-sphere">🎙️</div>
 
     <div class="call-transcript-box" id="call-transcript">
-      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak naturally in target language.</div>
+      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak or type below.</div>
+    </div>
+
+    <!-- Interactive Speech & Input Controls -->
+    <div class="speech-input-group">
+      <input type="text" id="talk-text-input" placeholder="Speak or type your message here..." autocomplete="off" />
+      <button class="btn-primary" id="btn-send-speech" style="min-width:90px; width:auto; padding:0 16px;">
+        💬 Speak
+      </button>
     </div>
 
     <div style="display:flex; gap:12px; width:100%; max-width:360px;">
-      <button class="btn-secondary" id="btn-mute" style="flex:1;">🎤 Mute</button>
+      <button class="btn-secondary" id="btn-mic-listen" style="flex:1;">🎤 Mic Listening</button>
       <button class="btn-primary" id="btn-end-call" style="flex:1; background:var(--accent-red); color:#fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);">🔴 End Call</button>
     </div>
   </div>
@@ -622,6 +637,7 @@
     };
 
     let selectedTargetLang = "Spanish";
+    let fullCallTranscriptHistory = [];
 
     async function computeSHA256(str) {
       const msgBuffer = new TextEncoder().encode(str);
@@ -750,10 +766,6 @@
           activeElevenLabsAudio.onended = () => {
             sphere.classList.remove('speaking');
             activeElevenLabsAudio = null;
-            // Resume microphone listening after tutor finishes speaking
-            if (speechRecognition && isCallActive) {
-              try { speechRecognition.start(); } catch(e) {}
-            }
           };
           
           activeElevenLabsAudio.play();
@@ -763,6 +775,67 @@
       } catch (e) {
         sphere.classList.remove('speaking');
       }
+    }
+
+    // Gemini 3.1 Pro Conversational Response Generator
+    async function getGeminiTutorReply(learnerInputText) {
+      if (!geminiApiKey) return "¡Muy bien! Sigue practicando.";
+      
+      const cefr = document.getElementById('sel-cefr').value || "A1";
+      const prompt = `You are a supportive AI language tutor teaching ${selectedTargetLang} at CEFR level ${cefr}.
+The learner just said: "${learnerInputText}".
+Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suitable for level ${cefr}. Keep it engaging and encourage the conversation.`;
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${geminiApiKey}`;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          return data?.candidates?.[0]?.content?.parts?.[0]?.text || "¡Excelente! ¿Qué más quisieras practicar?";
+        }
+      } catch (e) {}
+
+      return "¡Muy bien! ¿Qué más quisieras practicar?";
+    }
+
+    // Process Learner Spoken / Typed Input and trigger AI Tutor Spoken Response
+    async function processLearnerTurn(userText) {
+      if (!userText || !isCallActive) return;
+
+      fullCallTranscriptHistory.push(`Learner: ${userText}`);
+      const transcriptBox = document.getElementById('call-transcript');
+      
+      const learnerDiv = document.createElement('div');
+      learnerDiv.style.color = "var(--primary)";
+      learnerDiv.style.fontWeight = "600";
+      learnerDiv.style.margin = "6px 0";
+      learnerDiv.innerHTML = `<strong>You (Learner):</strong> ${userText}`;
+      transcriptBox.appendChild(learnerDiv);
+      transcriptBox.scrollTop = transcriptBox.scrollHeight;
+
+      // Show thinking state
+      document.getElementById('call-status').innerText = "TUTOR THINKING (GEMINI 3.1 PRO)...";
+
+      const tutorReply = await getGeminiTutorReply(userText);
+      fullCallTranscriptHistory.push(`Tutor: ${tutorReply}`);
+
+      document.getElementById('call-status').innerText = "ELEVENLABS AI TUTOR SPEAKING";
+      const tutorDiv = document.createElement('div');
+      tutorDiv.style.color = "var(--text-main)";
+      tutorDiv.style.fontWeight = "600";
+      tutorDiv.style.margin = "6px 0";
+      tutorDiv.innerHTML = `<strong>Tutor (ElevenLabs):</strong> ${tutorReply}`;
+      transcriptBox.appendChild(tutorDiv);
+      transcriptBox.scrollTop = transcriptBox.scrollHeight;
+
+      const selectedVoice = document.getElementById('sel-eleven-voice').value;
+      await playElevenLabsSpeech(tutorReply, selectedVoice);
+      document.getElementById('call-status').innerText = "ELEVENLABS AI TUTOR ACTIVE";
     }
 
     // Strict ElevenLabs Token Safeguard Call Termination
@@ -800,14 +873,15 @@
     }
 
     // Gemini 3.1 Pro API Post-Call Analysis Call
-    async function runGeminiAnalysis(scenario, transcript) {
+    async function runGeminiAnalysis(scenario, transcriptHistory) {
       if (!geminiApiKey) return;
       try {
+        const fullTranscriptText = transcriptHistory.join('\n');
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${geminiApiKey}`;
         const payload = {
           contents: [{
             parts: [{
-              text: `You are the Senior AI Language Tutor for LingoTutor AI. Analyze this conversation transcript in ${selectedTargetLang}.\nScenario: ${scenario}\nTranscript:\n${transcript}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`
+              text: `You are the Senior AI Language Tutor for LingoTutor AI. Analyze this practice conversation transcript in ${selectedTargetLang}.\nScenario: ${scenario}\nTranscript:\n${fullTranscriptText}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`
             }]
           }]
         };
@@ -837,35 +911,13 @@
 
       speechRecognition = new SpeechRecognition();
       speechRecognition.continuous = false;
-      speechRecognition.interimResults = true;
+      speechRecognition.interimResults = false;
       speechRecognition.lang = langCode;
 
       speechRecognition.onresult = (event) => {
-        let transcript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-
-        const transcriptBox = document.getElementById('call-transcript');
-        let learnerEl = document.getElementById('current-learner-speech');
-        if (!learnerEl) {
-          learnerEl = document.createElement('div');
-          learnerEl.id = 'current-learner-speech';
-          learnerEl.style.color = "var(--primary)";
-          learnerEl.style.marginTop = "8px";
-          transcriptBox.appendChild(learnerEl);
-        }
-        learnerEl.innerHTML = `<strong>You (Learner):</strong> ${transcript}`;
-        transcriptBox.scrollTop = transcriptBox.scrollHeight;
-      };
-
-      speechRecognition.onend = () => {
-        if (isCallActive) {
-          // If learner finished speaking, tutor responds in target language
-          const learnerEl = document.getElementById('current-learner-speech');
-          if (learnerEl) {
-            learnerEl.removeAttribute('id'); // Lock in current phrase
-          }
+        const text = event.results[0][0].transcript;
+        if (text && isCallActive) {
+          processLearnerTurn(text);
         }
       };
 
@@ -874,12 +926,33 @@
       } catch(e) {}
     }
 
+    document.getElementById('btn-mic-listen').onclick = () => {
+      const langConfig = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
+      setupMicrophoneRecognition(langConfig.code);
+    };
+
+    document.getElementById('btn-send-speech').onclick = () => {
+      const inputEl = document.getElementById('talk-text-input');
+      const val = inputEl.value.trim();
+      if (val) {
+        processLearnerTurn(val);
+        inputEl.value = "";
+      }
+    };
+
+    document.getElementById('talk-text-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('btn-send-speech').click();
+      }
+    });
+
     // Call Tutor Simulator & ElevenLabs Integration
     let callScenario = "Conversation Practice";
 
     async function startCall(scenario = "Conversation Practice") {
       isCallActive = true;
       callScenario = scenario;
+      fullCallTranscriptHistory = [];
 
       const langConfig = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
 
@@ -893,7 +966,8 @@
       } catch (e) {}
 
       const initialGreeting = langConfig.greeting;
-      
+      fullCallTranscriptHistory.push(`Tutor: ${initialGreeting}`);
+
       const transcriptBox = document.getElementById('call-transcript');
       transcriptBox.innerHTML = `
         <div style="color:var(--text-main); font-weight:600; margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
@@ -910,8 +984,7 @@
       endCallTokenSafeguard();
       
       navBtns[2].click();
-      const mockTranscript = `Learner: Hello!\nTutor: Welcome to your ${selectedTargetLang} practice.`;
-      runGeminiAnalysis(callScenario, mockTranscript);
+      runGeminiAnalysis(callScenario, fullCallTranscriptHistory);
     }
 
     document.getElementById('btn-quick-call').onclick = () => startCall("Casual Conversation Practice");
