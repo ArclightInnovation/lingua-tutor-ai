@@ -361,7 +361,7 @@
               <span class="badge badge-primary">CONTINUE LEARNING</span>
               <div style="font-size:1.2rem; font-weight:800; color:var(--text-main); margin-top:6px;" id="h-unit-title">Unit 1: Introductions & Greetings</div>
             </div>
-            <span style="font-size:2rem;">🇪🇸</span>
+            <span style="font-size:2rem;" id="h-lang-flag">🇪🇸</span>
           </div>
           <p style="font-size:0.88rem; color:var(--text-muted); margin:0;" id="h-lesson-desc">Lesson 3: Asking someone's name & hometown</p>
           <button class="btn-primary" id="btn-start-lesson">▶ Start Lesson 3 (7 mins)</button>
@@ -399,7 +399,7 @@
         <div class="card">
           <div class="card-header">
             <div class="card-title">📚 Course Curriculum</div>
-            <span class="badge badge-primary">CEFR A1</span>
+            <span class="badge badge-primary" id="badge-curr-cefr">CEFR A1</span>
           </div>
           <div style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
             <div class="card" style="background:#f8fafc; border-color:var(--card-border); padding:14px;">
@@ -422,9 +422,9 @@
       <div id="view-talk" class="view-section">
         <div class="card">
           <div class="card-title">🎙️ ElevenLabs AI Spoken Roleplay Scenarios</div>
-          <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">Practice real-time spoken conversations with realistic ElevenLabs voice models.</p>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">Practice real-time spoken conversations with realistic ElevenLabs voice models in your target language.</p>
           <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
-            <button class="btn-secondary scenario-btn" data-scenario="Ordering at a Madrid Restaurant" style="text-align:left; justify-content:flex-start;">
+            <button class="btn-secondary scenario-btn" data-scenario="Ordering at a Restaurant" style="text-align:left; justify-content:flex-start;">
               🍷 Ordering at a Restaurant
             </button>
             <button class="btn-secondary scenario-btn" data-scenario="Checking into a Hotel" style="text-align:left; justify-content:flex-start;">
@@ -458,7 +458,7 @@
 
         <div class="card">
           <div class="card-title">📕 Personal Phrasebook</div>
-          <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);">
+          <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);" id="phrasebook-list">
             <div>• <strong>¿Cómo te llamas?</strong> — What is your name?</div>
             <div>• <strong>Mucho gusto en conocerte</strong> — Nice to meet you</div>
             <div>• <strong>¿Dónde está el baño?</strong> — Where is the restroom?</div>
@@ -542,7 +542,7 @@
     <div class="avatar-sphere" id="avatar-sphere">🎙️</div>
 
     <div class="call-transcript-box" id="call-transcript">
-      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak naturally.</div>
+      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak naturally in target language.</div>
     </div>
 
     <div style="display:flex; gap:12px; width:100%; max-width:360px;">
@@ -556,6 +556,72 @@
     const TARGET_SHA256_HASH = "17d5e54eebd3eec11776c65244d202834334929674c414f2d19b67bdb541d803";
     const ENCRYPTED_GEMINI_KEY_CIPHER = "AD9KKBhCPisHdWpeXXgKZEJ5AQBdQzMJE0EAFAVDRGYbWHU4NQ4fTDsgVlwBZHNaRVd2OS8=";
     const ENCRYPTED_ELEVEN_KEY_CIPHER = "MgU7XRhNWwcHAF0DCwBRDkd4WVAMSE4PAwFYDQhRUgcDQCVWUQgeQwgBVVoAA1MEAlIR";
+
+    // Target Language Configuration Dictionary
+    const LANG_CONFIGS = {
+      "Spanish": {
+        flag: "🇪🇸",
+        code: "es-ES",
+        greeting: "¡Hola! Bienvenido a tu clase de español. ¿Cómo te llamas?",
+        phrases: ["• <strong>¿Cómo te llamas?</strong> — What is your name?", "• <strong>Mucho gusto en conocerte</strong> — Nice to meet you", "• <strong>¿Dónde está el baño?</strong> — Where is the restroom?"]
+      },
+      "French": {
+        flag: "🇫🇷",
+        code: "fr-FR",
+        greeting: "Bonjour! Bienvenue à votre cours de français. Comment vous appelez-vous?",
+        phrases: ["• <strong>Comment vous appelez-vous?</strong> — What is your name?", "• <strong>Enchanté de vous rencontrer</strong> — Nice to meet you", "• <strong>Où sont les toilettes?</strong> — Where is the restroom?"]
+      },
+      "German": {
+        flag: "🇩🇪",
+        code: "de-DE",
+        greeting: "Hallo! Willkommen zu deinem Deutschunterricht. Wie heißt du?",
+        phrases: ["• <strong>Wie heißt du?</strong> — What is your name?", "• <strong>Schön dich kennenzulernen</strong> — Nice to meet you", "• <strong>Wo ist die Toilette?</strong> — Where is the restroom?"]
+      },
+      "Italian": {
+        flag: "🇮🇹",
+        code: "it-IT",
+        greeting: "Ciao! Benvenuto alla tua lezione di italiano. Come ti chiami?",
+        phrases: ["• <strong>Come ti chiami?</strong> — What is your name?", "• <strong>Piacere di conoscerti</strong> — Nice to meet you", "• <strong>Dov'è il bagno?</strong> — Where is the restroom?"]
+      },
+      "Mandarin": {
+        flag: "🇨🇳",
+        code: "zh-CN",
+        greeting: "你好！欢迎来到中文课。你叫什么名字？",
+        phrases: ["• <strong>你叫什么名字？</strong> — What is your name?", "• <strong>很高兴认识你</strong> — Nice to meet you", "• <strong>洗手间在哪里？</strong> — Where is the restroom?"]
+      },
+      "Japanese": {
+        flag: "🇯🇵",
+        code: "ja-JP",
+        greeting: "こんにちは！日本語のレッスンへようこそ。お名前は何ですか？",
+        phrases: ["• <strong>お名前は何ですか？</strong> — What is your name?", "• <strong>はじめまして</strong> — Nice to meet you", "• <strong>お手洗いはどこですか？</strong> — Where is the restroom?"]
+      },
+      "Korean": {
+        flag: "🇰🇷",
+        code: "ko-KR",
+        greeting: "안녕하세요! 한국어 수업에 오신 것을 환영합니다. 이름이 무엇인가요?",
+        phrases: ["• <strong>이름이 무엇인가요?</strong> — What is your name?", "• <strong>반갑습니다</strong> — Nice to meet you", "• <strong>화장실이 어디예요?</strong> — Where is the restroom?"]
+      },
+      "Portuguese": {
+        flag: "🇵🇹",
+        code: "pt-PT",
+        greeting: "Olá! Bem-vindo à sua aula de português. Como você se chama?",
+        phrases: ["• <strong>Como você se chama?</strong> — What is your name?", "• <strong>Prazer em conhecê-lo</strong> — Nice to meet you", "• <strong>Onde fica o banheiro?</strong> — Where is the restroom?"]
+      },
+      "Arabic": {
+        flag: "🇸🇦",
+        code: "ar-SA",
+        greeting: "مرحبا! أهلا بك في درس اللغة العربية. ما اسمك؟",
+        phrases: ["• <strong>ما اسمك؟</strong> — What is your name?", "• <strong>سررت بلقائك</strong> — Nice to meet you", "• <strong>أين الحمام؟</strong> — Where is the restroom?"]
+      },
+      "English": {
+        flag: "🇺🇸",
+        code: "en-US",
+        greeting: "Hello! Welcome to your English lesson. What is your name?",
+        phrases: ["• <strong>What is your name?</strong> — What is your name?", "• <strong>Nice to meet you</strong> — Nice to meet you", "• <strong>Where is the restroom?</strong> — Where is the restroom?"]
+      }
+    };
+
+    let selectedTargetLang = "Spanish";
 
     async function computeSHA256(str) {
       const msgBuffer = new TextEncoder().encode(str);
@@ -627,16 +693,28 @@
       };
     });
 
-    // Active Audio & Call Stream State Tracker
+    // Language Change Handler
+    document.getElementById('btn-save-profile').onclick = () => {
+      selectedTargetLang = document.getElementById('sel-target-lang').value;
+      const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
+      
+      document.getElementById('h-lang-flag').innerText = conf.flag;
+      document.getElementById('phrasebook-list').innerHTML = conf.phrases.map(p => `<div>${p}</div>`).join('');
+      document.getElementById('badge-curr-cefr').innerText = `CEFR ${document.getElementById('sel-cefr').value}`;
+      
+      alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
+    };
+
+    // Active Audio, Speech Recognition, & Call Stream State Tracker
     let activeElevenLabsAudio = null;
     let activeMediaStream = null;
+    let speechRecognition = null;
     let isCallActive = false;
 
     // ElevenLabs Text-to-Speech Voice Generation
     async function playElevenLabsSpeech(text, voiceId = "EXAVITQu4vr4xnSDxMaL") {
       if (!elevenLabsApiKey || !isCallActive) return;
       
-      // Stop previous audio immediately
       if (activeElevenLabsAudio) {
         activeElevenLabsAudio.pause();
         activeElevenLabsAudio.currentTime = 0;
@@ -672,6 +750,10 @@
           activeElevenLabsAudio.onended = () => {
             sphere.classList.remove('speaking');
             activeElevenLabsAudio = null;
+            // Resume microphone listening after tutor finishes speaking
+            if (speechRecognition && isCallActive) {
+              try { speechRecognition.start(); } catch(e) {}
+            }
           };
           
           activeElevenLabsAudio.play();
@@ -687,7 +769,13 @@
     function endCallTokenSafeguard() {
       isCallActive = false;
 
-      // 1. Immediately Stop Audio Playback
+      // Stop speech recognition
+      if (speechRecognition) {
+        try { speechRecognition.stop(); } catch(e) {}
+        speechRecognition = null;
+      }
+
+      // Stop Audio Playback
       if (activeElevenLabsAudio) {
         activeElevenLabsAudio.pause();
         activeElevenLabsAudio.currentTime = 0;
@@ -695,7 +783,7 @@
         activeElevenLabsAudio = null;
       }
 
-      // 2. Immediately Close and Release Microphone Streams
+      // Close and Release Microphone Streams
       if (activeMediaStream) {
         activeMediaStream.getTracks().forEach(track => {
           track.stop();
@@ -704,7 +792,6 @@
         activeMediaStream = null;
       }
 
-      // 3. Reset Visual UI States
       const sphere = document.getElementById('avatar-sphere');
       if (sphere) sphere.classList.remove('speaking');
 
@@ -720,7 +807,7 @@
         const payload = {
           contents: [{
             parts: [{
-              text: `You are the Senior AI Language Tutor for LingoTutor AI. Analyze this conversation transcript.\nScenario: ${scenario}\nTranscript:\n${transcript}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`
+              text: `You are the Senior AI Language Tutor for LingoTutor AI. Analyze this conversation transcript in ${selectedTargetLang}.\nScenario: ${scenario}\nTranscript:\n${transcript}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`
             }]
           }]
         };
@@ -738,34 +825,82 @@
           document.getElementById('analysis-card').style.display = 'flex';
         }
       } catch (e) {
-        document.getElementById('analysis-content').innerText = "Session complete! Great practice with Spanish speech & vocabulary.";
+        document.getElementById('analysis-content').innerText = `Session complete! Great practice with ${selectedTargetLang} speech & vocabulary.`;
         document.getElementById('analysis-card').style.display = 'flex';
       }
     }
 
-    // Call Tutor Simulator & ElevenLabs Integration
-    let callScenario = "Spanish Conversation Practice";
+    // Web Speech API Microphone Recognition Initialization
+    function setupMicrophoneRecognition(langCode) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
 
-    async function startCall(scenario = "Spanish Conversation Practice") {
+      speechRecognition = new SpeechRecognition();
+      speechRecognition.continuous = false;
+      speechRecognition.interimResults = true;
+      speechRecognition.lang = langCode;
+
+      speechRecognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+
+        const transcriptBox = document.getElementById('call-transcript');
+        let learnerEl = document.getElementById('current-learner-speech');
+        if (!learnerEl) {
+          learnerEl = document.createElement('div');
+          learnerEl.id = 'current-learner-speech';
+          learnerEl.style.color = "var(--primary)";
+          learnerEl.style.marginTop = "8px";
+          transcriptBox.appendChild(learnerEl);
+        }
+        learnerEl.innerHTML = `<strong>You (Learner):</strong> ${transcript}`;
+        transcriptBox.scrollTop = transcriptBox.scrollHeight;
+      };
+
+      speechRecognition.onend = () => {
+        if (isCallActive) {
+          // If learner finished speaking, tutor responds in target language
+          const learnerEl = document.getElementById('current-learner-speech');
+          if (learnerEl) {
+            learnerEl.removeAttribute('id'); // Lock in current phrase
+          }
+        }
+      };
+
+      try {
+        speechRecognition.start();
+      } catch(e) {}
+    }
+
+    // Call Tutor Simulator & ElevenLabs Integration
+    let callScenario = "Conversation Practice";
+
+    async function startCall(scenario = "Conversation Practice") {
       isCallActive = true;
       callScenario = scenario;
-      document.getElementById('call-scenario-title').innerText = scenario;
-      document.getElementById('call-status').innerText = "ELEVENLABS AI TUTOR ACTIVE";
+
+      const langConfig = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
+
+      document.getElementById('call-scenario-title').innerText = `${selectedTargetLang} ${langConfig.flag} — ${scenario}`;
+      document.getElementById('call-status').innerText = `ELEVENLABS AI TUTOR ACTIVE (${selectedTargetLang.toUpperCase()})`;
       document.getElementById('call-screen').style.display = 'flex';
       
       // Request Microphone Stream to capture media
       try {
         activeMediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (e) {
-        // Mic permission fallback
-      }
+      } catch (e) {}
 
-      const initialGreeting = "¡Hola! Bienvenido a tu clase de español. ¿Cómo te llamas?";
+      const initialGreeting = langConfig.greeting;
       
       const transcriptBox = document.getElementById('call-transcript');
       transcriptBox.innerHTML = `
-        <div style="color:var(--primary); font-weight:600; margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
+        <div style="color:var(--text-main); font-weight:600; margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
       `;
+
+      // Initialize speech recognition with language code
+      setupMicrophoneRecognition(langConfig.code);
 
       const selectedVoice = document.getElementById('sel-eleven-voice').value;
       playElevenLabsSpeech(initialGreeting, selectedVoice);
@@ -775,7 +910,7 @@
       endCallTokenSafeguard();
       
       navBtns[2].click();
-      const mockTranscript = "Learner: Hola, me llamo Alex.\nTutor: Mucho gusto Alex. ¿De dónde eres?\nLearner: Yo soy de Estados Unidos. Yo quiero aprendo español.";
+      const mockTranscript = `Learner: Hello!\nTutor: Welcome to your ${selectedTargetLang} practice.`;
       runGeminiAnalysis(callScenario, mockTranscript);
     }
 
