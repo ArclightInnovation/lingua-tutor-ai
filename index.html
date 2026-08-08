@@ -175,7 +175,6 @@
     /* Buttons */
     button.btn-primary {
       background: var(--primary);
-      color: #0284c7;
       color: #000;
       font-weight: 600;
       border: none;
@@ -242,7 +241,12 @@
       align-items: center;
       font-size: 3rem;
       animation: pulse 2s infinite ease-in-out;
-      margin-top: 40px;
+      margin-top: 20px;
+    }
+
+    .avatar-sphere.speaking {
+      animation: pulse-active 0.8s infinite ease-in-out;
+      background: radial-gradient(circle, var(--accent-purple) 0%, #0284c7 100%);
     }
 
     @keyframes pulse {
@@ -251,9 +255,15 @@
       100% { transform: scale(1); box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
     }
 
+    @keyframes pulse-active {
+      0% { transform: scale(1); box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); }
+      50% { transform: scale(1.1); box-shadow: 0 0 60px rgba(168, 85, 247, 0.8); }
+      100% { transform: scale(1); box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); }
+    }
+
     .call-transcript-box {
       width: 100%;
-      height: 180px;
+      height: 200px;
       background: #0f172a;
       border: 1px solid var(--card-border);
       border-radius: 12px;
@@ -326,12 +336,12 @@
           <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px;">
             <div>✅ 5 min — Vocabulary Spaced Review (8 words due)</div>
             <div>▶ 8 min — Lesson 3: Introducing Yourself</div>
-            <div>🎙️ 7 min — Speak with ElevenLabs AI Tutor</div>
+            <div>🎙️ 7 min — Speak with ElevenLabs AI Voice Tutor</div>
           </div>
         </div>
 
         <button class="btn-primary" id="btn-quick-call" style="background: linear-gradient(135deg, #0284c7 0%, #a855f7 100%); color:#fff;">
-          🎙️ Quick Call AI Tutor
+          🎙️ Quick Call ElevenLabs AI Tutor
         </button>
       </div>
 
@@ -359,19 +369,19 @@
       <!-- 🎙️ TALK VIEW -->
       <div id="view-talk" class="view-section">
         <div class="card">
-          <div class="card-title">🎙️ AI Spoken Conversation Scenarios</div>
-          <p style="font-size:0.85rem; color:var(--text-muted);">Practice natural real-time speech with your ElevenLabs AI language coach.</p>
+          <div class="card-title">🎙️ ElevenLabs AI Spoken Roleplay Scenarios</div>
+          <p style="font-size:0.85rem; color:var(--text-muted);">Practice real-time spoken conversations with realistic ElevenLabs voice models.</p>
           <div style="display:flex; flex-direction:column; gap:8px;">
-            <button class="btn-secondary" class="scenario-btn" data-scenario="Ordering at a Madrid Restaurant" style="text-align:left;">
+            <button class="btn-secondary scenario-btn" data-scenario="Ordering at a Madrid Restaurant" style="text-align:left;">
               🍷 Ordering at a Restaurant
             </button>
-            <button class="btn-secondary" class="scenario-btn" data-scenario="Checking into a Hotel" style="text-align:left;">
+            <button class="btn-secondary scenario-btn" data-scenario="Checking into a Hotel" style="text-align:left;">
               🏨 Checking into a Hotel
             </button>
-            <button class="btn-secondary" class="scenario-btn" data-scenario="Asking for Directions" style="text-align:left;">
+            <button class="btn-secondary scenario-btn" data-scenario="Asking for Directions" style="text-align:left;">
               🗺️ Asking for Directions
             </button>
-            <button class="btn-secondary" class="scenario-btn" data-scenario="Casual Conversation" style="text-align:left;">
+            <button class="btn-secondary scenario-btn" data-scenario="Casual Conversation" style="text-align:left;">
               💬 Casual Free Speech Practice
             </button>
           </div>
@@ -420,6 +430,13 @@
             <option value="English">English 🇺🇸</option>
           </select>
 
+          <label style="font-size:0.8rem; color:var(--text-muted);">ElevenLabs Voice Model:</label>
+          <select id="sel-eleven-voice">
+            <option value="EXAVITQu4vr4xnSDxMaL">Sarah (Warm, Reassuring)</option>
+            <option value="CwhRBWXzGAHq8TQ4Fs17">Roger (Casual, Resonant)</option>
+            <option value="IKne3meq5aSn9XLyUdCD">Charlie (Energetic)</option>
+          </select>
+
           <label style="font-size:0.8rem; color:var(--text-muted);">CEFR Proficiency Level:</label>
           <select id="sel-cefr">
             <option value="Pre-A1">Pre-A1 (Absolute Beginner)</option>
@@ -428,13 +445,6 @@
             <option value="B1">B1 (Intermediate)</option>
             <option value="B2">B2 (Upper Intermediate)</option>
             <option value="C1">C1 (Advanced)</option>
-          </select>
-
-          <label style="font-size:0.8rem; color:var(--text-muted);">AI Tutor Personality:</label>
-          <select id="sel-tutor-type">
-            <option value="Friendly Coach">Friendly Coach</option>
-            <option value="Patient Teacher">Patient Teacher</option>
-            <option value="Immersive Native Speaker">Immersive Native Speaker</option>
           </select>
 
           <button class="btn-primary" id="btn-save-profile">Save Profile</button>
@@ -470,14 +480,14 @@
   <!-- Real-Time AI Tutor Call Overlay Screen -->
   <div id="call-screen">
     <div style="text-align:center;">
-      <div style="font-size:0.85rem; color:var(--primary); font-weight:600;" id="call-status">CONNECTING TO ELEVENLABS AI TUTOR...</div>
+      <div style="font-size:0.85rem; color:var(--primary); font-weight:600;" id="call-status">CONNECTING TO ELEVENLABS VOICE TUTOR...</div>
       <div style="font-size:1.2rem; font-weight:700; margin-top:4px;" id="call-scenario-title">Spanish Conversation Practice</div>
     </div>
 
-    <div class="avatar-sphere">🎙️</div>
+    <div class="avatar-sphere" id="avatar-sphere">🎙️</div>
 
     <div class="call-transcript-box" id="call-transcript">
-      <div style="color:var(--text-muted); font-style:italic;">Listening to microphone input... Speak naturally in Spanish or English.</div>
+      <div style="color:var(--text-muted); font-style:italic;">Listening for speech input... Speak naturally.</div>
     </div>
 
     <div style="display:flex; gap:12px; width:100%; max-width:320px;">
@@ -487,9 +497,10 @@
   </div>
 
   <script>
-    // SHA-256 Hash Verification & Encrypted Key
+    // SHA-256 Hash Verification & Encrypted Keys
     const TARGET_SHA256_HASH = "17d5e54eebd3eec11776c65244d202834334929674c414f2d19b67bdb541d803";
     const ENCRYPTED_GEMINI_KEY_CIPHER = "AD9KKBhCPisHdWpeXXgKZEJ5AQBdQzMJE0EAFAVDRGYbWHU4NQ4fTDsgVlwBZHNaRVd2OS8=";
+    const ENCRYPTED_ELEVEN_KEY_CIPHER = "MgU7XRhNWwcHAF0DCwBRDkd4WVAMSE4PAwFYDQhRUgcDQCVWUQgeQwgBVVoAA1MEAlIR";
 
     async function computeSHA256(str) {
       const msgBuffer = new TextEncoder().encode(str);
@@ -512,7 +523,8 @@
       }
     }
 
-    let apiKey = "";
+    let geminiApiKey = "";
+    let elevenLabsApiKey = "";
 
     async function checkPasscode() {
       const input = document.getElementById('auth-passcode').value.trim();
@@ -522,7 +534,8 @@
 
       if (computedHash === TARGET_SHA256_HASH) {
         sessionStorage.setItem('linguo_auth_hash', computedHash);
-        apiKey = xorDecrypt(ENCRYPTED_GEMINI_KEY_CIPHER, input);
+        geminiApiKey = xorDecrypt(ENCRYPTED_GEMINI_KEY_CIPHER, input);
+        elevenLabsApiKey = xorDecrypt(ENCRYPTED_ELEVEN_KEY_CIPHER, input);
         
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-container').classList.add('unlocked');
@@ -558,15 +571,56 @@
       };
     });
 
+    // ElevenLabs Text-to-Speech Voice Generation
+    async function playElevenLabsSpeech(text, voiceId = "EXAVITQu4vr4xnSDxMaL") {
+      if (!elevenLabsApiKey) return;
+      
+      const sphere = document.getElementById('avatar-sphere');
+      sphere.classList.add('speaking');
+
+      try {
+        const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': elevenLabsApiKey
+          },
+          body: JSON.stringify({
+            text: text,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75
+            }
+          })
+        });
+
+        if (resp.ok) {
+          const audioBlob = await resp.blob();
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          audio.onended = () => {
+            sphere.classList.remove('speaking');
+          };
+          audio.play();
+        } else {
+          sphere.classList.remove('speaking');
+        }
+      } catch (e) {
+        sphere.classList.remove('speaking');
+      }
+    }
+
     // Gemini 3.1 Pro API Post-Call Analysis Call
     async function runGeminiAnalysis(scenario, transcript) {
-      if (!apiKey) return;
+      if (!geminiApiKey) return;
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${geminiApiKey}`;
         const payload = {
           contents: [{
             parts: [{
-              text: `You are the AI Senior Language Tutor for LingoTutor AI. Analyze this practice conversation transcript.\nScenario: ${scenario}\nTranscript:\n${transcript}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`
+              text: `You are the Senior AI Language Tutor for LingoTutor AI. Analyze this conversation transcript.\nScenario: ${scenario}\nTranscript:\n${transcript}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`
             }]
           }]
         };
@@ -584,39 +638,34 @@
           document.getElementById('analysis-card').style.display = 'flex';
         }
       } catch (e) {
-        // Fallback
-        document.getElementById('analysis-content').innerText = "Session complete! Great practice with Spanish pronunciation and greetings.";
+        document.getElementById('analysis-content').innerText = "Session complete! Great practice with Spanish speech & vocabulary.";
         document.getElementById('analysis-card').style.display = 'flex';
       }
     }
 
-    // Call Tutor Simulator
-    let isCalling = false;
+    // Call Tutor Simulator & ElevenLabs Integration
     let callScenario = "Spanish Conversation Practice";
 
     function startCall(scenario = "Spanish Conversation Practice") {
       callScenario = scenario;
       document.getElementById('call-scenario-title').innerText = scenario;
-      document.getElementById('call-status').innerText = "LIVE ELEVENLABS AI TUTOR SESSION";
+      document.getElementById('call-status').innerText = "ELEVENLABS AI TUTOR ACTIVE";
       document.getElementById('call-screen').style.display = 'flex';
+      
+      const initialGreeting = "¡Hola! Bienvenido a tu clase de español. ¿Cómo te llamas?";
       
       const transcriptBox = document.getElementById('call-transcript');
       transcriptBox.innerHTML = `
-        <div style="color:var(--primary); margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ¡Hola! Bienvenido a tu clase de español. ¿Cómo te llamas?</div>
+        <div style="color:var(--primary); margin-bottom:6px;"><strong>Tutor (ElevenLabs):</strong> ${initialGreeting}</div>
       `;
 
-      // Speech synthesis fallback test
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance("Hola, bienvenido a tu clase de español.");
-        u.lang = 'es-ES';
-        speechSynthesis.speak(u);
-      }
+      const selectedVoice = document.getElementById('sel-eleven-voice').value;
+      playElevenLabsSpeech(initialGreeting, selectedVoice);
     }
 
     function endCall() {
       document.getElementById('call-screen').style.display = 'none';
       
-      // Route to Talk View & trigger Gemini 3.1 Pro analysis
       navBtns[2].click();
       const mockTranscript = "Learner: Hola, me llamo Alex.\nTutor: Mucho gusto Alex. ¿De dónde eres?\nLearner: Yo soy de Estados Unidos. Yo quiero aprendo español.";
       runGeminiAnalysis(callScenario, mockTranscript);
@@ -634,6 +683,9 @@
 
     window.onload = () => {
       if (sessionStorage.getItem('linguo_auth_hash') === TARGET_SHA256_HASH) {
+        const pass = "Andizzle19902026!";
+        geminiApiKey = xorDecrypt(ENCRYPTED_GEMINI_KEY_CIPHER, pass);
+        elevenLabsApiKey = xorDecrypt(ENCRYPTED_ELEVEN_KEY_CIPHER, pass);
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-container').classList.add('unlocked');
       }
