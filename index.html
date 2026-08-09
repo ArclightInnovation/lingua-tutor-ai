@@ -1173,17 +1173,37 @@
 
     function renderLearningProfile() {
       const p = learningProfile;
-      selectedTargetLang = p.target;
-      const conf = LANG_CONFIGS[p.target] || LANG_CONFIGS.Spanish;
-      const targetSelect = document.getElementById('sel-target-lang');
-      if ([...targetSelect.options].some(o => o.value === p.target)) targetSelect.value = p.target;
-      document.getElementById('h-lang-flag').textContent = conf.flag;
+      applyTargetLanguage(p.target);
       updateDailyGoal(Number(p.minutes));
       const summary = document.getElementById('profile-learning-plan');
       summary.innerHTML = `<div>Languages<strong>${p.native} → ${p.target}</strong></div><div>Goal & focus<strong>${p.goal} · ${p.focus}</strong></div><div>Daily pace<strong>${p.minutes} minutes</strong></div><div>Tutor style<strong>${p.corrections} · ${p.immersion}</strong></div>`;
       document.getElementById('recommended-plan-items').innerHTML = planParts(p).map((item, i) => `<div style="display:flex;align-items:center;gap:8px"><span style="color:${i===0?'var(--accent-green)':i===1?'var(--primary)':'var(--accent-purple)'};font-weight:700">${item.icon}</span> ${item.minutes} min — ${item.text}</div>`).join('');
-      renderPhrasebook();
+    }
+
+    // Single live language transition used by onboarding, Profile, and startup.
+    // Keeping every language-dependent surface here prevents stale content until reload.
+    function applyTargetLanguage(language, { persistProfile = false } = {}) {
+      if (!LANG_CONFIGS[language]) return;
+      selectedTargetLang = language;
+      const conf = LANG_CONFIGS[language];
+      const profileSelect = document.getElementById('sel-target-lang');
+      const onboardingSelect = document.getElementById('onboard-target');
+      if (profileSelect && profileSelect.value !== language) profileSelect.value = language;
+      if (onboardingSelect && onboardingSelect.value !== language) onboardingSelect.value = language;
+      document.getElementById('h-lang-flag').textContent = conf.flag;
+
+      // Also update recognition objects that may already have been constructed.
+      if (pronunciationRecognition) pronunciationRecognition.lang = conf.code;
+      if (speechRecognition) speechRecognition.lang = conf.code;
+
       renderLocalizedLearningContent();
+      renderPhrasebook();
+      filterReviewContent(document.getElementById('review-search').value);
+
+      if (persistProfile) {
+        learningProfile.target = language;
+        localStorage.setItem(ONBOARDING_KEY, JSON.stringify(learningProfile));
+      }
     }
 
     function renderLocalizedLearningContent() {
@@ -1388,14 +1408,11 @@
 
     // Language Change Handler
     document.getElementById('btn-save-profile').onclick = () => {
-      selectedTargetLang = document.getElementById('sel-target-lang').value;
-      const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
-      
-      document.getElementById('h-lang-flag').innerText = conf.flag;
-      renderPhrasebook();
+      const profileLanguage = document.getElementById('sel-target-lang').value;
+      applyTargetLanguage(profileLanguage, { persistProfile: true });
+      const conf = LANG_CONFIGS[profileLanguage];
       document.getElementById('badge-curr-cefr').innerText = `CEFR ${document.getElementById('sel-cefr').value}`;
       localStorage.setItem('lingotutor_cefr', document.getElementById('sel-cefr').value);
-      learningProfile.target = selectedTargetLang;
       learningProfile.minutes = dailyGoalMinutes;
       localStorage.setItem(ONBOARDING_KEY, JSON.stringify(learningProfile));
       renderLearningProfile();
@@ -1403,6 +1420,15 @@
       alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
       filterReviewContent(document.getElementById('review-search').value);
     };
+
+    document.getElementById('sel-target-lang').addEventListener('change', event => {
+      applyTargetLanguage(event.target.value, { persistProfile: true });
+    });
+
+    document.getElementById('onboard-target').addEventListener('change', event => {
+      onboardingDraft.target = event.target.value;
+      applyTargetLanguage(event.target.value);
+    });
 
     document.getElementById('custom-phrase-form').addEventListener('submit', event => {
       event.preventDefault();
@@ -1486,6 +1512,7 @@
       learningProfile = { ...onboardingDraft };
       localStorage.setItem(ONBOARDING_KEY, JSON.stringify(learningProfile));
       localStorage.setItem('lingotutor_daily_goal', String(learningProfile.minutes));
+      applyTargetLanguage(learningProfile.target);
       renderLearningProfile();
       document.getElementById('onboarding-modal').style.display = 'none';
     };
