@@ -473,9 +473,24 @@
     .install-banner .btn-secondary { white-space:nowrap; border:0; color:var(--primary); background:#fff; }
     .recording-dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--accent-red); animation:pulse-active .7s infinite; }
 
+    .phrase-form { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; align-items:end; }
+    .phrase-form label { font-size:.75rem; font-weight:700; color:var(--text-muted); }
+    .phrase-form label span { display:block; margin-bottom:5px; }
+    .phrase-form .btn-primary { width:auto; min-height:45px; padding:10px 16px; }
+    .grammar-accordion { display:flex; flex-direction:column; gap:8px; }
+    .grammar-accordion details { border:1px solid var(--card-border); border-radius:12px; background:#f8fafc; overflow:hidden; }
+    .grammar-accordion summary { cursor:pointer; padding:14px; font-weight:700; color:var(--text-main); list-style:none; display:flex; justify-content:space-between; align-items:center; }
+    .grammar-accordion summary::-webkit-details-marker { display:none; }
+    .grammar-accordion summary::after { content:'＋'; color:var(--primary); font-size:1.1rem; }
+    .grammar-accordion details[open] summary::after { content:'−'; }
+    .grammar-content { padding:0 14px 14px; color:var(--text-muted); font-size:.86rem; line-height:1.55; }
+    .grammar-content strong { color:var(--primary); }
+
     @media (max-width: 420px) {
       .achievement-grid { grid-template-columns: 1fr; }
       .achievement-badge { min-height: 92px; }
+      .phrase-form { grid-template-columns:1fr; }
+      .phrase-form .btn-primary { width:100%; }
     }
   </style>
 </head>
@@ -596,6 +611,29 @@
           <audio id="pronunciation-playback" controls style="display:none;width:100%;height:38px"></audio>
           <div id="pronunciation-score" aria-live="polite" style="display:none; font-size:0.9rem; color:#166534; margin-top:4px;"></div>
         </div>
+
+        <div class="card">
+          <div class="card-title">🧩 Grammar Reference</div>
+          <p style="font-size:.84rem;color:var(--text-muted);margin:0;">Open a topic for a quick rule and practical Spanish example.</p>
+          <div class="grammar-accordion">
+            <details>
+              <summary>Noun Gender</summary>
+              <div class="grammar-content">Nouns are generally masculine or feminine. Endings in <strong>-o</strong> are often masculine and <strong>-a</strong> often feminine, but exceptions exist. Example: <em>el libro</em> (the book), <em>la mesa</em> (the table).</div>
+            </details>
+            <details>
+              <summary>Verb Conjugation</summary>
+              <div class="grammar-content">The verb ending changes with the subject. For regular <strong>-ar</strong> verbs in the present tense: <em>yo hablo, tú hablas, él/ella habla, nosotros hablamos, ellos hablan</em>.</div>
+            </details>
+            <details>
+              <summary>Articles</summary>
+              <div class="grammar-content">Definite articles are <strong>el, la, los, las</strong>; indefinite articles are <strong>un, una, unos, unas</strong>. They agree with the noun's gender and number: <em>las casas</em>, <em>un café</em>.</div>
+            </details>
+            <details>
+              <summary>Word Order</summary>
+              <div class="grammar-content">The usual order is subject–verb–object, though the subject is often omitted when the verb makes it clear. Adjectives commonly follow nouns: <em>(Yo) quiero una camisa azul</em>.</div>
+            </details>
+          </div>
+        </div>
       </div>
 
       <!-- 🎙️ TALK VIEW -->
@@ -667,6 +705,12 @@
 
         <div class="card">
           <div class="card-title">📕 Personal Phrasebook (With ElevenLabs Native Audio)</div>
+          <form id="custom-phrase-form" class="phrase-form">
+            <label><span>Target-language phrase</span><input id="custom-phrase-text" type="text" maxlength="180" placeholder="e.g. ¿Cuánto cuesta?" required></label>
+            <label><span>Meaning / note</span><input id="custom-phrase-translation" type="text" maxlength="180" placeholder="e.g. How much is it?" required></label>
+            <button class="btn-primary" type="submit">＋ Add Phrase</button>
+          </form>
+          <div id="custom-phrase-status" role="status" aria-live="polite" style="font-size:.78rem;color:var(--accent-green);"></div>
           <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);" id="phrasebook-list">
             <div class="phrase-item review-search-item" data-search="¿Cómo te llamas? what is your name">
               <div><strong>¿Cómo te llamas?</strong> — What is your name?</div>
@@ -765,6 +809,8 @@
           </div>
 
           <button class="btn-primary" id="btn-save-profile">Save Settings</button>
+          <button class="btn-secondary" id="btn-export-notes">⬇ Export Study Notes</button>
+          <div id="export-status" role="status" aria-live="polite" style="font-size:.78rem;color:var(--accent-green);"></div>
         </div>
       </div>
     </main>
@@ -979,6 +1025,46 @@
     let dailyGoalMinutes = Number(localStorage.getItem('lingotutor_daily_goal')) || 20;
     let deferredInstallPrompt = null;
 
+    function getCustomPhrases(language = selectedTargetLang) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('lingotutor_custom_phrases') || '{}');
+        return Array.isArray(saved[language]) ? saved[language] : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveCustomPhrases(phrases, language = selectedTargetLang) {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem('lingotutor_custom_phrases') || '{}'); } catch (_) {}
+      saved[language] = phrases;
+      localStorage.setItem('lingotutor_custom_phrases', JSON.stringify(saved));
+    }
+
+    function renderPhrasebook() {
+      const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish;
+      const phrases = [...conf.phrases, ...getCustomPhrases()];
+      const list = document.getElementById('phrasebook-list');
+      list.replaceChildren();
+      phrases.forEach(phrase => {
+        const item = document.createElement('div');
+        item.className = 'phrase-item review-search-item';
+        item.dataset.search = `${phrase.text} ${phrase.trans}`;
+        const copy = document.createElement('div');
+        const target = document.createElement('strong');
+        target.textContent = phrase.text;
+        copy.append(target, document.createTextNode(` — ${phrase.trans}`));
+        const audio = document.createElement('button');
+        audio.className = 'audio-btn';
+        audio.type = 'button';
+        audio.setAttribute('aria-label', `Play ${phrase.text}`);
+        audio.textContent = '🔊';
+        audio.addEventListener('click', () => playElevenLabsSpeech(phrase.text, document.getElementById('sel-eleven-voice').value));
+        item.append(copy, audio);
+        list.appendChild(item);
+      });
+    }
+
     async function computeSHA256(str) {
       const msgBuffer = new TextEncoder().encode(str);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -1055,18 +1141,61 @@
       const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS["Spanish"];
       
       document.getElementById('h-lang-flag').innerText = conf.flag;
-      document.getElementById('phrasebook-list').innerHTML = conf.phrases.map(p => `
-        <div class="phrase-item review-search-item" data-search="${p.text} ${p.trans}">
-          <div><strong>${p.text}</strong> — ${p.trans}</div>
-          <button class="audio-btn" onclick="playElevenLabsSpeech('${p.text}')">🔊</button>
-        </div>
-      `).join('');
+      renderPhrasebook();
       document.getElementById('badge-curr-cefr').innerText = `CEFR ${document.getElementById('sel-cefr').value}`;
       localStorage.setItem('lingotutor_cefr', document.getElementById('sel-cefr').value);
       
       alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
       filterReviewContent(document.getElementById('review-search').value);
     };
+
+    document.getElementById('custom-phrase-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const textInput = document.getElementById('custom-phrase-text');
+      const translationInput = document.getElementById('custom-phrase-translation');
+      const phrase = { text: textInput.value.trim(), trans: translationInput.value.trim() };
+      if (!phrase.text || !phrase.trans) return;
+      const customPhrases = getCustomPhrases();
+      customPhrases.push(phrase);
+      saveCustomPhrases(customPhrases);
+      renderPhrasebook();
+      filterReviewContent(document.getElementById('review-search').value);
+      document.getElementById('custom-phrase-status').textContent = `Added to your ${selectedTargetLang} phrasebook. Tap 🔊 to hear it.`;
+      event.target.reset();
+      textInput.focus();
+    });
+
+    document.getElementById('btn-export-notes').addEventListener('click', () => {
+      const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish;
+      const phrases = [...conf.phrases, ...getCustomPhrases()];
+      const cefr = document.getElementById('sel-cefr').value;
+      const percent = Math.min(100, Math.round((DAILY_MINUTES_STUDIED / dailyGoalMinutes) * 100));
+      const lines = [
+        'LingoTutor AI — Study Notes',
+        `Exported: ${new Date().toLocaleString()}`,
+        '',
+        `Target language: ${selectedTargetLang}`,
+        `CEFR level: ${cefr}`,
+        `Study streak: 5 days`,
+        `Total points: 450 XP`,
+        `Today: ${DAILY_MINUTES_STUDIED} of ${dailyGoalMinutes} minutes (${percent}%)`,
+        '',
+        `Learned phrases (${phrases.length})`,
+        ...phrases.map((phrase, index) => `${index + 1}. ${phrase.text} — ${phrase.trans}`),
+        '',
+        'Grammar focus: Noun Gender, Verb Conjugation, Articles, Word Order'
+      ];
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `lingotutor-${selectedTargetLang.toLowerCase()}-study-notes.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      document.getElementById('export-status').textContent = 'Study notes downloaded.';
+    });
 
     function updateDailyGoal(minutes) {
       dailyGoalMinutes = minutes;
@@ -1736,6 +1865,8 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
         document.getElementById('badge-curr-cefr').textContent = `CEFR ${savedCefr}`;
       }
       updateDailyGoal(dailyGoalMinutes);
+      selectedTargetLang = document.getElementById('sel-target-lang').value;
+      renderPhrasebook();
     };
   </script>
 </body>
