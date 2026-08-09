@@ -473,6 +473,22 @@
     .install-banner .btn-secondary { white-space:nowrap; border:0; color:var(--primary); background:#fff; }
     .recording-dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--accent-red); animation:pulse-active .7s infinite; }
 
+    .onboarding-box { max-width:600px; padding:0; overflow:hidden; gap:0; }
+    .onboarding-head { padding:22px 24px 16px; border-bottom:1px solid var(--card-border); }
+    .onboarding-body { padding:22px 24px; display:flex; flex-direction:column; gap:18px; }
+    .onboarding-step { display:none; flex-direction:column; gap:16px; }
+    .onboarding-step.active { display:flex; }
+    .onboarding-label { font-size:.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:7px; }
+    .onboarding-options { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+    .onboarding-option { border:1px solid var(--card-border); background:#fff; border-radius:12px; padding:14px 12px; text-align:left; color:var(--text-main); cursor:pointer; font-weight:700; min-height:58px; }
+    .onboarding-option small { display:block; color:var(--text-muted); font-weight:500; margin-top:3px; }
+    .onboarding-option.selected { border-color:var(--primary); background:var(--primary-light); color:var(--primary); box-shadow:0 0 0 2px rgba(79,70,229,.1); }
+    .onboarding-actions { display:flex; gap:10px; padding:16px 24px 22px; }
+    .onboarding-actions .btn-secondary { min-width:100px; }
+    .plan-summary { background:linear-gradient(135deg,#eef2ff,#faf5ff); border:1px solid #c7d2fe; border-radius:14px; padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .plan-summary div { font-size:.8rem; color:var(--text-muted); }
+    .plan-summary strong { display:block; color:var(--text-main); font-size:.95rem; margin-top:3px; }
+
     .phrase-form { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; align-items:end; }
     .phrase-form label { font-size:.75rem; font-weight:700; color:var(--text-muted); }
     .phrase-form label span { display:block; margin-bottom:5px; }
@@ -491,6 +507,7 @@
       .achievement-badge { min-height: 92px; }
       .phrase-form { grid-template-columns:1fr; }
       .phrase-form .btn-primary { width:100%; }
+      .onboarding-options, .plan-summary { grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -567,10 +584,7 @@
 
         <div class="card">
           <div class="card-title" id="recommended-plan-title">📅 Today's Recommended Plan (20 Min)</div>
-          <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:10px; color:var(--text-muted);">
-            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-green); font-weight:700;">✓</span> 5 min — Vocabulary Spaced Review (SM-2)</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--primary); font-weight:700;">▶</span> 8 min — Lesson 3: Introducing Yourself</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-purple); font-weight:700;">🎙️</span> 7 min — ElevenLabs Live Agent Call</div>
+          <div id="recommended-plan-items" style="font-size:0.88rem; display:flex; flex-direction:column; gap:10px; color:var(--text-muted);">
           </div>
         </div>
 
@@ -809,6 +823,8 @@
           </div>
 
           <button class="btn-primary" id="btn-save-profile">Save Settings</button>
+          <div id="profile-learning-plan" class="plan-summary" aria-label="Personalized learning plan"></div>
+          <button class="btn-secondary" id="btn-restart-onboarding">↻ Restart Onboarding</button>
           <button class="btn-secondary" id="btn-export-notes">⬇ Export Study Notes</button>
           <div id="export-status" role="status" aria-live="polite" style="font-size:.78rem;color:var(--accent-green);"></div>
         </div>
@@ -838,6 +854,42 @@
         <span>Profile</span>
       </button>
     </nav>
+  </div>
+
+  <div id="onboarding-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <div class="modal-box onboarding-box">
+      <div class="onboarding-head">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <span class="badge badge-primary" id="onboarding-progress">STEP 1 OF 4</span>
+          <span style="font-size:.78rem;color:var(--text-muted)" id="onboarding-percent">25% complete</span>
+        </div>
+        <div class="progress-bar-container" style="height:7px;margin-top:12px"><div class="progress-bar-fill" id="onboarding-progress-bar" style="width:25%"></div></div>
+      </div>
+      <div class="onboarding-body">
+        <section class="onboarding-step active" data-step="1">
+          <div><div id="onboarding-title" style="font-size:1.35rem;font-weight:800">Let’s personalize your learning</div><p style="color:var(--text-muted);margin:6px 0 0;font-size:.88rem">First, tell us which languages will shape your lessons.</p></div>
+          <label><span class="onboarding-label">I want to learn</span><select id="onboard-target"></select></label>
+          <label><span class="onboarding-label">My native language</span><select id="onboard-native"><option>English</option><option>Spanish</option><option>French</option><option>German</option><option>Italian</option><option>Mandarin</option><option>Japanese</option><option>Korean</option><option>Portuguese</option><option>Arabic</option></select></label>
+        </section>
+        <section class="onboarding-step" data-step="2">
+          <div><div style="font-size:1.35rem;font-weight:800">What brings you here?</div><p style="color:var(--text-muted);margin:6px 0 0;font-size:.88rem">We’ll prioritize the situations and skills that matter most.</p></div>
+          <div><span class="onboarding-label">Learning goal</span><div class="onboarding-options" data-field="goal"><button class="onboarding-option" data-value="Travel">✈️ Travel<small>Navigate trips confidently</small></button><button class="onboarding-option" data-value="Conversation">💬 Conversation<small>Connect in everyday life</small></button><button class="onboarding-option" data-value="Business">💼 Business<small>Communicate professionally</small></button><button class="onboarding-option" data-value="Heritage">🌳 Heritage<small>Reconnect with family and culture</small></button></div></div>
+          <div><span class="onboarding-label">Primary focus</span><div class="onboarding-options" data-field="focus"><button class="onboarding-option" data-value="Speaking">🎙️ Speaking</button><button class="onboarding-option" data-value="Listening">🎧 Listening</button><button class="onboarding-option" data-value="Vocabulary">🧠 Vocabulary</button><button class="onboarding-option" data-value="Grammar">🧩 Grammar</button></div></div>
+        </section>
+        <section class="onboarding-step" data-step="3">
+          <div><div style="font-size:1.35rem;font-weight:800">Set your learning rhythm</div><p style="color:var(--text-muted);margin:6px 0 0;font-size:.88rem">You can change these preferences anytime.</p></div>
+          <div><span class="onboarding-label">Daily study goal</span><div class="onboarding-options" data-field="minutes"><button class="onboarding-option" data-value="10">10 min<small>Easy habit</small></button><button class="onboarding-option" data-value="15">15 min<small>Steady pace</small></button><button class="onboarding-option" data-value="20">20 min<small>Balanced</small></button><button class="onboarding-option" data-value="30">30 min<small>Accelerated</small></button></div></div>
+          <label><span class="onboarding-label">Tutor corrections</span><select id="onboard-corrections"><option value="Immediate">Correct me immediately</option><option value="After speaking">Wait until I finish speaking</option><option value="Key errors only">Only correct key errors</option></select></label>
+          <label><span class="onboarding-label">Immersion level</span><select id="onboard-immersion"><option value="Guided">Guided — explanations in my native language</option><option value="Balanced">Balanced — mostly target language</option><option value="Full immersion">Full immersion — target language only</option></select></label>
+        </section>
+        <section class="onboarding-step" data-step="4">
+          <div><div style="font-size:1.35rem;font-weight:800">Your plan is ready 🎉</div><p style="color:var(--text-muted);margin:6px 0 0;font-size:.88rem">Here’s the personalized approach we’ll use for your lessons.</p></div>
+          <div id="onboarding-summary" class="plan-summary"></div>
+          <div style="background:#f8fafc;border-radius:12px;padding:14px;font-size:.86rem;line-height:1.55;color:var(--text-muted)" id="onboarding-plan-copy"></div>
+        </section>
+      </div>
+      <div class="onboarding-actions"><button class="btn-secondary" id="btn-onboarding-back">Back</button><button class="btn-primary" id="btn-onboarding-next">Continue</button></div>
+    </div>
   </div>
 
   <!-- Interactive Fullscreen Lesson Modal Player -->
@@ -1024,6 +1076,88 @@
     const DAILY_MINUTES_STUDIED = 12;
     let dailyGoalMinutes = Number(localStorage.getItem('lingotutor_daily_goal')) || 20;
     let deferredInstallPrompt = null;
+    const ONBOARDING_KEY = 'lingotutor_onboarding_profile';
+    const defaultLearningProfile = { target: 'Spanish', native: 'English', goal: 'Conversation', focus: 'Speaking', minutes: 20, corrections: 'After speaking', immersion: 'Balanced' };
+    let learningProfile = { ...defaultLearningProfile };
+    let onboardingDraft = { ...defaultLearningProfile };
+    let onboardingStep = 1;
+
+    function loadLearningProfile() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(ONBOARDING_KEY) || 'null');
+        if (saved) learningProfile = { ...defaultLearningProfile, ...saved };
+      } catch (_) {}
+      return learningProfile;
+    }
+
+    function planParts(profile) {
+      const minutes = Number(profile.minutes);
+      const review = Math.max(3, Math.round(minutes * .25));
+      const lesson = Math.max(4, Math.round(minutes * .4));
+      return [
+        { icon:'🧠', minutes:review, text:`${profile.focus} warm-up & review` },
+        { icon:'▶', minutes:lesson, text:`${profile.goal} lesson in ${profile.target}` },
+        { icon:'🎙️', minutes:minutes-review-lesson, text:`${profile.immersion} tutor practice` }
+      ];
+    }
+
+    function renderLearningProfile() {
+      const p = learningProfile;
+      selectedTargetLang = p.target;
+      const conf = LANG_CONFIGS[p.target] || LANG_CONFIGS.Spanish;
+      const targetSelect = document.getElementById('sel-target-lang');
+      if ([...targetSelect.options].some(o => o.value === p.target)) targetSelect.value = p.target;
+      document.getElementById('h-lang-flag').textContent = conf.flag;
+      updateDailyGoal(Number(p.minutes));
+      const summary = document.getElementById('profile-learning-plan');
+      summary.innerHTML = `<div>Languages<strong>${p.native} → ${p.target}</strong></div><div>Goal & focus<strong>${p.goal} · ${p.focus}</strong></div><div>Daily pace<strong>${p.minutes} minutes</strong></div><div>Tutor style<strong>${p.corrections} · ${p.immersion}</strong></div>`;
+      document.getElementById('recommended-plan-items').innerHTML = planParts(p).map((item, i) => `<div style="display:flex;align-items:center;gap:8px"><span style="color:${i===0?'var(--accent-green)':i===1?'var(--primary)':'var(--accent-purple)'};font-weight:700">${item.icon}</span> ${item.minutes} min — ${item.text}</div>`).join('');
+      renderPhrasebook();
+    }
+
+    function chooseOnboardingOption(field, value) {
+      onboardingDraft[field] = field === 'minutes' ? Number(value) : value;
+      document.querySelectorAll(`[data-field="${field}"] .onboarding-option`).forEach(button => {
+        const selected = String(button.dataset.value) === String(value);
+        button.classList.toggle('selected', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+    }
+
+    function syncOnboardingControls() {
+      document.getElementById('onboard-target').value = onboardingDraft.target;
+      document.getElementById('onboard-native').value = onboardingDraft.native;
+      document.getElementById('onboard-corrections').value = onboardingDraft.corrections;
+      document.getElementById('onboard-immersion').value = onboardingDraft.immersion;
+      ['goal','focus','minutes'].forEach(field => chooseOnboardingOption(field, onboardingDraft[field]));
+    }
+
+    function showOnboardingStep(step) {
+      onboardingStep = step;
+      document.querySelectorAll('.onboarding-step').forEach(section => section.classList.toggle('active', Number(section.dataset.step) === step));
+      document.getElementById('onboarding-progress').textContent = `STEP ${step} OF 4`;
+      document.getElementById('onboarding-percent').textContent = `${step * 25}% complete`;
+      document.getElementById('onboarding-progress-bar').style.width = `${step * 25}%`;
+      document.getElementById('btn-onboarding-back').style.visibility = step === 1 ? 'hidden' : 'visible';
+      document.getElementById('btn-onboarding-next').textContent = step === 4 ? 'Start My Plan' : 'Continue';
+      if (step === 4) {
+        const p = onboardingDraft;
+        document.getElementById('onboarding-summary').innerHTML = `<div>Languages<strong>${p.native} → ${p.target}</strong></div><div>Your priority<strong>${p.goal} · ${p.focus}</strong></div><div>Daily commitment<strong>${p.minutes} minutes</strong></div><div>Tutor experience<strong>${p.corrections} · ${p.immersion}</strong></div>`;
+        document.getElementById('onboarding-plan-copy').innerHTML = planParts(p).map(x => `${x.icon} <strong>${x.minutes} min</strong> — ${x.text}`).join('<br>');
+      }
+      setTimeout(() => document.querySelector(`.onboarding-step[data-step="${step}"] select, .onboarding-step[data-step="${step}"] button`)?.focus(), 0);
+    }
+
+    function openOnboarding() {
+      onboardingDraft = { ...learningProfile };
+      syncOnboardingControls();
+      showOnboardingStep(1);
+      document.getElementById('onboarding-modal').style.display = 'flex';
+    }
+
+    function maybeOpenOnboarding() {
+      if (!localStorage.getItem(ONBOARDING_KEY)) setTimeout(openOnboarding, 100);
+    }
 
     function getCustomPhrases(language = selectedTargetLang) {
       try {
@@ -1103,6 +1237,7 @@
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-container').classList.add('unlocked');
         err.style.display = 'none';
+        maybeOpenOnboarding();
       } else {
         err.style.display = 'block';
         document.getElementById('auth-passcode').value = '';
@@ -1144,6 +1279,10 @@
       renderPhrasebook();
       document.getElementById('badge-curr-cefr').innerText = `CEFR ${document.getElementById('sel-cefr').value}`;
       localStorage.setItem('lingotutor_cefr', document.getElementById('sel-cefr').value);
+      learningProfile.target = selectedTargetLang;
+      learningProfile.minutes = dailyGoalMinutes;
+      localStorage.setItem(ONBOARDING_KEY, JSON.stringify(learningProfile));
+      renderLearningProfile();
       
       alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
       filterReviewContent(document.getElementById('review-search').value);
@@ -1213,8 +1352,28 @@
     }
 
     document.querySelectorAll('#daily-goal-selector .choice-btn').forEach(button => {
-      button.addEventListener('click', () => updateDailyGoal(Number(button.dataset.minutes)));
+      button.addEventListener('click', () => { updateDailyGoal(Number(button.dataset.minutes)); learningProfile.minutes = Number(button.dataset.minutes); });
     });
+
+    document.querySelectorAll('.onboarding-option').forEach(button => button.addEventListener('click', () => chooseOnboardingOption(button.parentElement.dataset.field, button.dataset.value)));
+    document.getElementById('btn-onboarding-back').onclick = () => showOnboardingStep(Math.max(1, onboardingStep - 1));
+    document.getElementById('btn-onboarding-next').onclick = () => {
+      if (onboardingStep === 1) {
+        onboardingDraft.target = document.getElementById('onboard-target').value;
+        onboardingDraft.native = document.getElementById('onboard-native').value;
+      }
+      if (onboardingStep === 3) {
+        onboardingDraft.corrections = document.getElementById('onboard-corrections').value;
+        onboardingDraft.immersion = document.getElementById('onboard-immersion').value;
+      }
+      if (onboardingStep < 4) return showOnboardingStep(onboardingStep + 1);
+      learningProfile = { ...onboardingDraft };
+      localStorage.setItem(ONBOARDING_KEY, JSON.stringify(learningProfile));
+      localStorage.setItem('lingotutor_daily_goal', String(learningProfile.minutes));
+      renderLearningProfile();
+      document.getElementById('onboarding-modal').style.display = 'none';
+    };
+    document.getElementById('btn-restart-onboarding').onclick = openOnboarding;
 
     // Review search filters flashcards, logged mistakes, and phrasebook entries.
     function filterReviewContent(rawQuery) {
@@ -1847,6 +2006,9 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
     });
 
     window.onload = () => {
+      loadLearningProfile();
+      const targetOptions = document.getElementById('sel-target-lang').innerHTML;
+      document.getElementById('onboard-target').innerHTML = targetOptions;
       if (sessionStorage.getItem('linguo_auth_hash') === TARGET_SHA256_HASH) {
         const pass = "Andizzle19902026!";
         geminiApiKey = xorDecrypt(ENCRYPTED_GEMINI_KEY_CIPHER, pass);
@@ -1865,8 +2027,8 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
         document.getElementById('badge-curr-cefr').textContent = `CEFR ${savedCefr}`;
       }
       updateDailyGoal(dailyGoalMinutes);
-      selectedTargetLang = document.getElementById('sel-target-lang').value;
-      renderPhrasebook();
+      renderLearningProfile();
+      if (document.getElementById('app-container').classList.contains('unlocked')) maybeOpenOnboarding();
     };
   </script>
 </body>
