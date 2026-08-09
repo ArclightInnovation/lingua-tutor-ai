@@ -464,6 +464,15 @@
     .achievement-name { font-size: 0.78rem; font-weight: 800; line-height: 1.2; }
     .achievement-detail { font-size: 0.7rem; color: var(--text-muted); line-height: 1.25; }
 
+    .choice-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
+    .choice-btn { border:1px solid var(--card-border); background:#fff; border-radius:10px; padding:11px 6px; font-weight:700; color:var(--text-muted); cursor:pointer; }
+    .choice-btn.selected { color:var(--primary); border-color:var(--primary); background:var(--primary-light); box-shadow:0 0 0 2px rgba(79,70,229,.1); }
+    .test-option { width:100%; text-align:left; border:1px solid var(--card-border); background:#fff; border-radius:12px; padding:13px 14px; color:var(--text-main); font-size:.9rem; cursor:pointer; }
+    .test-option:hover, .test-option.selected { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .install-banner { display:none; flex-direction:row; align-items:center; gap:12px; background:linear-gradient(135deg,#312e81,#4f46e5); color:#fff; }
+    .install-banner .btn-secondary { white-space:nowrap; border:0; color:var(--primary); background:#fff; }
+    .recording-dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--accent-red); animation:pulse-active .7s infinite; }
+
     @media (max-width: 420px) {
       .achievement-grid { grid-template-columns: 1fr; }
       .achievement-badge { min-height: 92px; }
@@ -503,11 +512,17 @@
     <main>
       <!-- 🏠 HOME VIEW -->
       <div id="view-home" class="view-section active">
+        <div class="card install-banner" id="install-banner" role="status">
+          <div style="font-size:1.8rem;" aria-hidden="true">📲</div>
+          <div style="flex:1;"><strong>Install LingoTutor</strong><div style="font-size:.78rem; opacity:.85; margin-top:2px;">Practice faster from your home screen—even offline.</div></div>
+          <button class="btn-secondary" id="btn-install-app">Install App</button>
+          <button aria-label="Dismiss install prompt" id="btn-dismiss-install" style="border:0;background:transparent;color:#fff;font-size:1.2rem;cursor:pointer">✕</button>
+        </div>
         <!-- Daily Progress Header Card -->
         <div class="card" style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-color: #c7d2fe;">
           <div class="card-header">
             <div>
-              <span class="badge badge-primary">DAILY GOAL: 12 / 20 MINS</span>
+              <span class="badge badge-primary" id="daily-goal-badge">DAILY GOAL: 12 / 20 MINS</span>
               <div style="font-size:1.2rem; font-weight:800; color:var(--text-main); margin-top:6px;" id="h-unit-title">Unit 1: Introductions & Greetings</div>
             </div>
             <span style="font-size:2.2rem;" id="h-lang-flag">🇪🇸</span>
@@ -515,7 +530,7 @@
 
           <!-- Progress Bar -->
           <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: 60%;"></div>
+            <div class="progress-bar-fill" id="daily-goal-progress" style="width: 60%;"></div>
           </div>
 
           <p style="font-size:0.88rem; color:var(--text-muted); margin:0;" id="h-lesson-desc">Lesson 3: Asking someone's name & hometown</p>
@@ -536,7 +551,7 @@
         </div>
 
         <div class="card">
-          <div class="card-title">📅 Today's Recommended Plan (20 Min)</div>
+          <div class="card-title" id="recommended-plan-title">📅 Today's Recommended Plan (20 Min)</div>
           <div style="font-size:0.88rem; display:flex; flex-direction:column; gap:10px; color:var(--text-muted);">
             <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--accent-green); font-weight:700;">✓</span> 5 min — Vocabulary Spaced Review (SM-2)</div>
             <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--primary); font-weight:700;">▶</span> 8 min — Lesson 3: Introducing Yourself</div>
@@ -577,9 +592,9 @@
           <div class="card-title" style="color:#166534;">🎯 Pronunciation Coach & Sound Assessor</div>
           <p style="font-size:0.85rem; color:#14532d; margin:0;">Practice saying: <strong>"Quisiera una taza de café, por favor"</strong></p>
           <button class="btn-primary" id="btn-test-pronunciation" style="background:#166534;">🎤 Speak & Rate Pronunciation</button>
-          <div id="pronunciation-score" style="display:none; font-size:0.9rem; font-weight:700; color:#166534; margin-top:4px;">
-            🎉 Phoneme Accuracy: 94% — Great stress on "Quisiera"!
-          </div>
+          <div id="pronunciation-status" aria-live="polite" style="font-size:.8rem;color:#166534;display:none"></div>
+          <audio id="pronunciation-playback" controls style="display:none;width:100%;height:38px"></audio>
+          <div id="pronunciation-score" aria-live="polite" style="display:none; font-size:0.9rem; color:#166534; margin-top:4px;"></div>
         </div>
       </div>
 
@@ -738,6 +753,17 @@
             <option value="C1">C1 (Advanced)</option>
           </select>
 
+          <div>
+            <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:8px;">Daily Study Goal:</label>
+            <div class="choice-grid" id="daily-goal-selector" role="radiogroup" aria-label="Daily study goal">
+              <button type="button" class="choice-btn" data-minutes="10" role="radio">10 min</button>
+              <button type="button" class="choice-btn" data-minutes="15" role="radio">15 min</button>
+              <button type="button" class="choice-btn selected" data-minutes="20" role="radio" aria-checked="true">20 min</button>
+              <button type="button" class="choice-btn" data-minutes="30" role="radio">30 min</button>
+            </div>
+            <div id="goal-preview" style="font-size:.76rem;color:var(--text-muted);margin-top:7px;">12 minutes today · 60% complete</div>
+          </div>
+
           <button class="btn-primary" id="btn-save-profile">Save Settings</button>
         </div>
       </div>
@@ -790,6 +816,21 @@
       </div>
 
       <button class="btn-primary" id="btn-next-lesson-step">Next Step ▶</button>
+    </div>
+  </div>
+
+  <div id="placement-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="placement-title">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="badge badge-primary" id="placement-progress">QUESTION 1 OF 3</span>
+        <button class="btn-secondary" id="btn-close-placement" style="min-height:30px;padding:2px 8px" aria-label="Close test">✕</button>
+      </div>
+      <div id="placement-title" style="font-size:1.15rem;font-weight:800;">CEFR Placement Test</div>
+      <div class="progress-bar-container"><div class="progress-bar-fill" id="placement-progress-bar" style="width:33%"></div></div>
+      <div id="placement-question" style="font-weight:700;line-height:1.45;"></div>
+      <div id="placement-options" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="placement-result" style="display:none"></div>
+      <button class="btn-primary" id="btn-next-placement" disabled>Next Question</button>
     </div>
   </div>
 
@@ -934,6 +975,9 @@
 
     let selectedTargetLang = "Spanish";
     let fullCallTranscriptHistory = [];
+    const DAILY_MINUTES_STUDIED = 12;
+    let dailyGoalMinutes = Number(localStorage.getItem('lingotutor_daily_goal')) || 20;
+    let deferredInstallPrompt = null;
 
     async function computeSHA256(str) {
       const msgBuffer = new TextEncoder().encode(str);
@@ -1018,10 +1062,30 @@
         </div>
       `).join('');
       document.getElementById('badge-curr-cefr').innerText = `CEFR ${document.getElementById('sel-cefr').value}`;
+      localStorage.setItem('lingotutor_cefr', document.getElementById('sel-cefr').value);
       
       alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
       filterReviewContent(document.getElementById('review-search').value);
     };
+
+    function updateDailyGoal(minutes) {
+      dailyGoalMinutes = minutes;
+      localStorage.setItem('lingotutor_daily_goal', String(minutes));
+      const percent = Math.min(100, Math.round((DAILY_MINUTES_STUDIED / minutes) * 100));
+      document.getElementById('daily-goal-badge').textContent = `DAILY GOAL: ${DAILY_MINUTES_STUDIED} / ${minutes} MINS`;
+      document.getElementById('daily-goal-progress').style.width = `${percent}%`;
+      document.getElementById('recommended-plan-title').textContent = `📅 Today's Recommended Plan (${minutes} Min)`;
+      document.getElementById('goal-preview').textContent = `${DAILY_MINUTES_STUDIED} minutes today · ${percent}% complete`;
+      document.querySelectorAll('#daily-goal-selector .choice-btn').forEach(button => {
+        const selected = Number(button.dataset.minutes) === minutes;
+        button.classList.toggle('selected', selected);
+        button.setAttribute('aria-checked', String(selected));
+      });
+    }
+
+    document.querySelectorAll('#daily-goal-selector .choice-btn').forEach(button => {
+      button.addEventListener('click', () => updateDailyGoal(Number(button.dataset.minutes)));
+    });
 
     // Review search filters flashcards, logged mistakes, and phrasebook entries.
     function filterReviewContent(rawQuery) {
@@ -1125,15 +1189,135 @@
       document.getElementById('fc-back').innerText = "Nice to meet you (Phrase)";
     }
 
-    // Pronunciation Test Simulator
-    document.getElementById('btn-test-pronunciation').onclick = () => {
-      document.getElementById('pronunciation-score').style.display = 'block';
-    };
+    // Three increasingly difficult questions produce a concise CEFR diagnostic.
+    const placementQuestions = [
+      { question:'Choose the best translation: “I would like a coffee, please.”', options:['Quiero café ayer.','Quisiera un café, por favor.','Me llamo café.','¿Dónde café?'], answer:1, points:1 },
+      { question:'Complete the sentence: “Si tuviera más tiempo, ___ español cada día.”', options:['estudio','estudié','estudiaría','estudiando'], answer:2, points:2 },
+      { question:'Which sentence naturally expresses a past regret?', options:['Ojalá tenga tiempo mañana.','Si tengo tiempo, voy.','Me alegra que vengas.','Ojalá hubiera estudiado más.'], answer:3, points:3 }
+    ];
+    let placementIndex = 0;
+    let placementScore = 0;
+    let placementSelection = null;
 
-    // Placement Test Simulator
-    document.getElementById('btn-placement-test').onclick = () => {
-      alert("Diagnostic Placement Test Complete! Assigned CEFR Level: A1 (Beginner). Curriculum updated.");
-    };
+    function renderPlacementQuestion() {
+      const item = placementQuestions[placementIndex];
+      document.getElementById('placement-progress').textContent = `QUESTION ${placementIndex + 1} OF 3`;
+      document.getElementById('placement-progress-bar').style.width = `${((placementIndex + 1) / 3) * 100}%`;
+      document.getElementById('placement-question').textContent = item.question;
+      document.getElementById('placement-options').innerHTML = '';
+      item.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'test-option';
+        button.textContent = option;
+        button.onclick = () => {
+          placementSelection = index;
+          document.querySelectorAll('.test-option').forEach((el, i) => el.classList.toggle('selected', i === index));
+          document.getElementById('btn-next-placement').disabled = false;
+        };
+        document.getElementById('placement-options').appendChild(button);
+      });
+      document.getElementById('btn-next-placement').textContent = placementIndex === 2 ? 'See My Result' : 'Next Question';
+      document.getElementById('btn-next-placement').disabled = true;
+    }
+
+    function finishPlacementTest() {
+      const level = placementScore <= 1 ? 'A1' : placementScore <= 3 ? 'A2' : placementScore <= 5 ? 'B1' : 'B2';
+      const guidance = level === 'A1' ? 'Start with essential phrases and present-tense patterns.' : level === 'A2' ? 'Build everyday fluency and strengthen past-tense forms.' : level === 'B1' ? 'Focus on connected speech, nuance, and conditional structures.' : 'You are ready for complex conversation and idiomatic expression.';
+      document.getElementById('sel-cefr').value = level;
+      document.getElementById('badge-curr-cefr').textContent = `CEFR ${level}`;
+      localStorage.setItem('lingotutor_cefr', level);
+      document.getElementById('placement-progress').textContent = 'DIAGNOSTIC COMPLETE';
+      document.getElementById('placement-question').style.display = 'none';
+      document.getElementById('placement-options').style.display = 'none';
+      const result = document.getElementById('placement-result');
+      result.style.display = 'block';
+      result.innerHTML = `<div style="text-align:center;font-size:2.5rem">🎯</div><div style="text-align:center;font-size:1.3rem;font-weight:800">Your level: CEFR ${level}</div><p style="color:var(--text-muted);line-height:1.5">Score: ${placementScore}/6. ${guidance} Your profile and curriculum have been updated.</p>`;
+      const next = document.getElementById('btn-next-placement');
+      next.disabled = false;
+      next.textContent = 'Continue Learning';
+      next.onclick = closePlacementTest;
+    }
+
+    function openPlacementTest() {
+      placementIndex = 0; placementScore = 0; placementSelection = null;
+      document.getElementById('placement-question').style.display = 'block';
+      document.getElementById('placement-options').style.display = 'flex';
+      document.getElementById('placement-result').style.display = 'none';
+      document.getElementById('btn-next-placement').onclick = advancePlacementTest;
+      document.getElementById('placement-modal').style.display = 'flex';
+      renderPlacementQuestion();
+    }
+    function closePlacementTest() { document.getElementById('placement-modal').style.display = 'none'; }
+    function advancePlacementTest() {
+      if (placementSelection === placementQuestions[placementIndex].answer) placementScore += placementQuestions[placementIndex].points;
+      if (placementIndex === 2) return finishPlacementTest();
+      placementIndex++; placementSelection = null; renderPlacementQuestion();
+    }
+    document.getElementById('btn-placement-test').onclick = openPlacementTest;
+    document.getElementById('btn-close-placement').onclick = closePlacementTest;
+    document.getElementById('btn-next-placement').onclick = advancePlacementTest;
+
+    // Record a reusable audio clip and compare recognized words with the practice phrase.
+    let pronunciationRecorder = null;
+    let pronunciationChunks = [];
+    let pronunciationRecognition = null;
+    let pronunciationTranscript = '';
+    function normalizedWords(text) { return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zñ\s]/g,'').trim().split(/\s+/).filter(Boolean); }
+    function ratePronunciation(transcript) {
+      const target = normalizedWords('Quisiera una taza de café por favor');
+      const heard = normalizedWords(transcript);
+      const matches = target.filter(word => heard.includes(word)).length;
+      const score = Math.max(20, Math.min(100, Math.round((matches / target.length) * 100)));
+      const missed = target.filter(word => !heard.includes(word));
+      const message = score >= 85 ? 'Excellent clarity and phrase coverage!' : score >= 60 ? `Good attempt. Focus on: ${missed.slice(0,2).join(', ')}.` : `Try once more, slowly emphasizing: ${missed.slice(0,3).join(', ')}.`;
+      const scoreBox = document.getElementById('pronunciation-score');
+      scoreBox.style.display = 'block';
+      scoreBox.innerHTML = `<strong>Pronunciation match: ${score}%</strong><div style="margin-top:5px">${message}</div><div style="font-size:.76rem;font-weight:400;margin-top:5px">Heard: “${transcript || 'Audio captured; transcription unavailable'}”</div>`;
+    }
+    async function togglePronunciationRecording() {
+      const button = document.getElementById('btn-test-pronunciation');
+      const status = document.getElementById('pronunciation-status');
+      if (pronunciationRecorder?.state === 'recording') {
+        pronunciationRecorder.stop();
+        pronunciationRecognition?.stop();
+        button.disabled = true;
+        button.textContent = '⏳ Rating pronunciation…';
+        return;
+      }
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+        status.style.display = 'block'; status.textContent = 'Audio recording is not supported in this browser.'; return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+        pronunciationChunks = []; pronunciationTranscript = '';
+        pronunciationRecorder = new MediaRecorder(stream);
+        pronunciationRecorder.ondataavailable = event => { if (event.data.size) pronunciationChunks.push(event.data); };
+        pronunciationRecorder.onstop = () => {
+          stream.getTracks().forEach(track => track.stop());
+          const url = URL.createObjectURL(new Blob(pronunciationChunks, {type:pronunciationRecorder.mimeType}));
+          const playback = document.getElementById('pronunciation-playback');
+          if (playback.src) URL.revokeObjectURL(playback.src);
+          playback.src = url; playback.style.display = 'block';
+          ratePronunciation(pronunciationTranscript);
+          button.disabled = false; button.textContent = '🎤 Record Another Attempt'; button.style.background = '#166534';
+          status.innerHTML = '✅ Recording complete — play it back and review your feedback.';
+        };
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (Recognition) {
+          pronunciationRecognition = new Recognition();
+          pronunciationRecognition.lang = 'es-ES'; pronunciationRecognition.continuous = true; pronunciationRecognition.interimResults = true;
+          pronunciationRecognition.onresult = event => { pronunciationTranscript = Array.from(event.results).map(result => result[0].transcript).join(' '); };
+          try { pronunciationRecognition.start(); } catch(e) {}
+        }
+        pronunciationRecorder.start();
+        status.style.display = 'block'; status.innerHTML = '<span class="recording-dot"></span> Recording… say the phrase, then tap Stop & Rate.';
+        button.textContent = '⏹ Stop & Rate'; button.style.background = 'var(--accent-red)';
+        document.getElementById('pronunciation-score').style.display = 'none';
+      } catch (error) {
+        status.style.display = 'block'; status.textContent = 'Microphone access is needed to record and rate your pronunciation.';
+      }
+    }
+    document.getElementById('btn-test-pronunciation').onclick = togglePronunciationRecording;
 
     // Active Audio, Speech Recognition, ElevenLabs Agent WebSocket & Call Stream State Tracker
     let activeElevenLabsAudio = null;
@@ -1503,6 +1687,36 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       }
     });
 
+    window.addEventListener('beforeinstallprompt', event => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      if (localStorage.getItem('lingotutor_install_dismissed') !== 'true') {
+        document.getElementById('install-banner').style.display = 'flex';
+      }
+    });
+    document.getElementById('btn-install-app').onclick = async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      document.getElementById('install-banner').style.display = 'none';
+    };
+    document.getElementById('btn-dismiss-install').onclick = () => {
+      document.getElementById('install-banner').style.display = 'none';
+      localStorage.setItem('lingotutor_install_dismissed', 'true');
+    };
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      document.getElementById('install-banner').style.display = 'none';
+    });
+
+    document.getElementById('placement-modal').addEventListener('click', event => {
+      if (event.target.id === 'placement-modal') closePlacementTest();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && document.getElementById('placement-modal').style.display === 'flex') closePlacementTest();
+    });
+
     window.onload = () => {
       if (sessionStorage.getItem('linguo_auth_hash') === TARGET_SHA256_HASH) {
         const pass = "Andizzle19902026!";
@@ -1515,6 +1729,13 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       }
+
+      const savedCefr = localStorage.getItem('lingotutor_cefr');
+      if (savedCefr && [...document.getElementById('sel-cefr').options].some(option => option.value === savedCefr)) {
+        document.getElementById('sel-cefr').value = savedCefr;
+        document.getElementById('badge-curr-cefr').textContent = `CEFR ${savedCefr}`;
+      }
+      updateDailyGoal(dailyGoalMinutes);
     };
   </script>
 </body>
