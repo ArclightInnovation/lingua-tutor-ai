@@ -600,7 +600,7 @@
             <div class="card-title">📚 Course Curriculum</div>
             <span class="badge badge-primary" id="badge-curr-cefr">CEFR A1</span>
           </div>
-          <div style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
+          <div id="curriculum-content" style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
             <div class="card" style="background:#f8fafc; border-color:var(--card-border); padding:14px;">
               <div style="font-size:0.95rem; font-weight:700; color:var(--primary);">Unit 1: Introductions</div>
               <div style="font-size:0.85rem; color:var(--accent-green); font-weight:600; margin-top:4px;">✓ Lesson 1: Saying Hello</div>
@@ -619,7 +619,7 @@
         <!-- Pronunciation Coach Feature -->
         <div class="card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #bbf7d0;">
           <div class="card-title" style="color:#166534;">🎯 Pronunciation Coach & Sound Assessor</div>
-          <p style="font-size:0.85rem; color:#14532d; margin:0;">Practice saying: <strong>"Quisiera una taza de café, por favor"</strong></p>
+          <p style="font-size:0.85rem; color:#14532d; margin:0;">Practice saying: <strong id="pronunciation-practice-phrase">"Quisiera una taza de café, por favor"</strong></p>
           <button class="btn-primary" id="btn-test-pronunciation" style="background:#166534;">🎤 Speak & Rate Pronunciation</button>
           <div id="pronunciation-status" aria-live="polite" style="font-size:.8rem;color:#166534;display:none"></div>
           <audio id="pronunciation-playback" controls style="display:none;width:100%;height:38px"></audio>
@@ -628,8 +628,8 @@
 
         <div class="card">
           <div class="card-title">🧩 Grammar Reference</div>
-          <p style="font-size:.84rem;color:var(--text-muted);margin:0;">Open a topic for a quick rule and practical Spanish example.</p>
-          <div class="grammar-accordion">
+          <p id="grammar-reference-intro" style="font-size:.84rem;color:var(--text-muted);margin:0;">Open a topic for a quick rule and practical Spanish example.</p>
+          <div class="grammar-accordion" id="grammar-accordion">
             <details>
               <summary>Noun Gender</summary>
               <div class="grammar-content">Nouns are generally masculine or feminine. Endings in <strong>-o</strong> are often masculine and <strong>-a</strong> often feminine, but exceptions exist. Example: <em>el libro</em> (the book), <em>la mesa</em> (the table).</div>
@@ -656,16 +656,16 @@
           <div class="card-title">🎙️ ElevenLabs ConvAI Live Agent Scenarios</div>
           <p style="font-size:0.88rem; color:var(--text-muted); margin:0;">Real-time WebSocket streaming audio conversation with ElevenLabs Live AI Agents.</p>
           <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
-            <button class="btn-secondary scenario-btn" data-scenario="Ordering at a Restaurant" style="text-align:left; justify-content:flex-start;">
+            <button class="btn-secondary scenario-btn" data-scenario="restaurant" style="text-align:left; justify-content:flex-start;">
               🍷 Ordering at a Restaurant
             </button>
-            <button class="btn-secondary scenario-btn" data-scenario="Checking into a Hotel" style="text-align:left; justify-content:flex-start;">
+            <button class="btn-secondary scenario-btn" data-scenario="hotel" style="text-align:left; justify-content:flex-start;">
               🏨 Checking into a Hotel
             </button>
-            <button class="btn-secondary scenario-btn" data-scenario="Asking for Directions" style="text-align:left; justify-content:flex-start;">
+            <button class="btn-secondary scenario-btn" data-scenario="directions" style="text-align:left; justify-content:flex-start;">
               🗺️ Asking for Directions
             </button>
-            <button class="btn-secondary scenario-btn" data-scenario="Casual Conversation" style="text-align:left; justify-content:flex-start;">
+            <button class="btn-secondary scenario-btn" data-scenario="casual" style="text-align:left; justify-content:flex-start;">
               💬 Casual Free Speech Practice
             </button>
           </div>
@@ -1071,6 +1071,108 @@
       }
     };
 
+    // Content shown throughout the learning experience, localized for each target language.
+    Object.assign(LANG_CONFIGS.Spanish, {
+      practicePhrase: "Quisiera una taza de café, por favor",
+      grammar: [
+        { title:"Noun Gender", rule:"Most nouns have grammatical gender; -o is often masculine and -a often feminine, with exceptions.", example:"el libro (the book), la mesa (the table)" },
+        { title:"Present-tense Verbs", rule:"Verb endings change with the subject, and subject pronouns can often be omitted.", example:"Yo hablo / Hablo español. (I speak Spanish.)" },
+        { title:"Adjective Agreement", rule:"Adjectives usually follow the noun and agree in gender and number.", example:"una camisa roja / dos libros rojos" }
+      ],
+      curriculum:{ unit1:"Unidad 1: Presentaciones", lessons1:["Lección 1: Saludar","Lección 2: Presentarte","Lección 3: Preguntar el nombre","Lección 4: ¿De dónde eres?"], unit2:"Unidad 2: En la cafetería y el restaurante", lessons2:["Lección 1: Pedir café y bebidas","Lección 2: Pagar la cuenta"] },
+      scenarios:{restaurant:"Pedir en un restaurante",hotel:"Registrarse en un hotel",directions:"Pedir indicaciones",casual:"Conversación informal"}
+    });
+    Object.assign(LANG_CONFIGS.French, {
+      practicePhrase:"Je voudrais une tasse de café, s'il vous plaît",
+      grammar:[
+        {title:"Noun Gender",rule:"Every noun is masculine or feminine, and its article must agree.",example:"le livre (the book), la table (the table)"},
+        {title:"Present-tense Verbs",rule:"Regular -er verbs take endings that change with the subject.",example:"je parle, tu parles, nous parlons"},
+        {title:"Adjective Agreement",rule:"Adjectives generally agree with the noun in gender and number.",example:"un café chaud / une soupe chaude"}
+      ],
+      curriculum:{unit1:"Unité 1 : Se présenter",lessons1:["Leçon 1 : Dire bonjour","Leçon 2 : Se présenter","Leçon 3 : Demander le nom","Leçon 4 : D'où venez-vous ?"],unit2:"Unité 2 : Au café et au restaurant",lessons2:["Leçon 1 : Commander des boissons","Leçon 2 : Payer l'addition"]},
+      scenarios:{restaurant:"Commander au restaurant",hotel:"S'enregistrer à l'hôtel",directions:"Demander son chemin",casual:"Conversation informelle"}
+    });
+    Object.assign(LANG_CONFIGS.German, {
+      practicePhrase:"Ich hätte gern eine Tasse Kaffee, bitte",
+      grammar:[
+        {title:"Noun Gender & Capitals",rule:"Nouns are capitalized and use masculine, feminine, or neuter articles.",example:"der Tisch, die Tür, das Buch"},
+        {title:"Verb Position",rule:"In a main statement, the conjugated verb normally occupies the second position.",example:"Heute trinke ich Kaffee. (Today I drink coffee.)"},
+        {title:"The Four Cases",rule:"Articles change according to a noun's role in the sentence.",example:"Der Mann sieht den Hund. (The man sees the dog.)"}
+      ],
+      curriculum:{unit1:"Einheit 1: Kennenlernen",lessons1:["Lektion 1: Begrüßen","Lektion 2: Sich vorstellen","Lektion 3: Nach dem Namen fragen","Lektion 4: Woher kommst du?"],unit2:"Einheit 2: Im Café und Restaurant",lessons2:["Lektion 1: Getränke bestellen","Lektion 2: Die Rechnung bezahlen"]},
+      scenarios:{restaurant:"Im Restaurant bestellen",hotel:"Im Hotel einchecken",directions:"Nach dem Weg fragen",casual:"Lockeres Gespräch"}
+    });
+    Object.assign(LANG_CONFIGS.Italian, {
+      practicePhrase:"Vorrei una tazza di caffè, per favore",
+      grammar:[
+        {title:"Noun Gender",rule:"Nouns are masculine or feminine; articles and adjectives agree with them.",example:"il libro, la casa, le case"},
+        {title:"Present-tense Verbs",rule:"Regular verbs use different endings for each person.",example:"io parlo, tu parli, noi parliamo"},
+        {title:"Articulated Prepositions",rule:"Many prepositions combine with definite articles.",example:"a + il = al; Vado al mercato. (I go to the market.)"}
+      ],
+      curriculum:{unit1:"Unità 1: Presentazioni",lessons1:["Lezione 1: Salutare","Lezione 2: Presentarsi","Lezione 3: Chiedere il nome","Lezione 4: Di dove sei?"],unit2:"Unità 2: Al bar e al ristorante",lessons2:["Lezione 1: Ordinare le bevande","Lezione 2: Pagare il conto"]},
+      scenarios:{restaurant:"Ordinare al ristorante",hotel:"Fare il check-in in hotel",directions:"Chiedere indicazioni",casual:"Conversazione informale"}
+    });
+    Object.assign(LANG_CONFIGS.Mandarin, {
+      practicePhrase:"请给我一杯咖啡，谢谢",
+      grammar:[
+        {title:"Basic Word Order",rule:"A common order is subject–time–place–verb–object.",example:"我今天在家学习中文。 (I study Chinese at home today.)"},
+        {title:"Measure Words",rule:"A measure word normally appears between a number or demonstrative and a noun.",example:"一杯咖啡 (a cup of coffee), 三本书 (three books)"},
+        {title:"Questions with 吗",rule:"Add 吗 to the end of a statement to form a yes/no question.",example:"你喜欢茶吗？ (Do you like tea?)"}
+      ],
+      curriculum:{unit1:"第一单元：自我介绍",lessons1:["第一课：问候","第二课：介绍自己","第三课：询问姓名","第四课：你从哪里来？"],unit2:"第二单元：咖啡馆和餐厅",lessons2:["第一课：点咖啡和饮料","第二课：结账"]},
+      scenarios:{restaurant:"在餐厅点餐",hotel:"办理酒店入住",directions:"问路",casual:"日常对话"}
+    });
+    Object.assign(LANG_CONFIGS.Japanese, {
+      practicePhrase:"コーヒーを一杯お願いします",
+      grammar:[
+        {title:"Particles",rule:"Particles mark each word's grammatical role; は marks the topic and を the object.",example:"私はコーヒーを飲みます。 (I drink coffee.)"},
+        {title:"Verb-final Order",rule:"The verb normally comes at the end of the clause.",example:"毎日日本語を勉強します。 (I study Japanese every day.)"},
+        {title:"Polite Forms",rule:"Use です with nouns and adjectives and -ます with verbs for polite speech.",example:"学生です。／東京へ行きます。"}
+      ],
+      curriculum:{unit1:"ユニット1：自己紹介",lessons1:["レッスン1：あいさつ","レッスン2：自己紹介","レッスン3：名前を聞く","レッスン4：出身はどこですか"],unit2:"ユニット2：カフェとレストラン",lessons2:["レッスン1：飲み物を注文する","レッスン2：会計をする"]},
+      scenarios:{restaurant:"レストランで注文する",hotel:"ホテルにチェックインする",directions:"道を尋ねる",casual:"日常会話"}
+    });
+    Object.assign(LANG_CONFIGS.Korean, {
+      practicePhrase:"커피 한 잔 주세요",
+      grammar:[
+        {title:"Particles",rule:"Particles attach to nouns to show topic, subject, or object.",example:"저는 커피를 마셔요. (I drink coffee.)"},
+        {title:"Verb-final Order",rule:"Korean generally places the verb or adjective at the end.",example:"저는 한국어를 공부해요. (I study Korean.)"},
+        {title:"Politeness Levels",rule:"Verb endings express the relationship and level of formality.",example:"가요 (polite) / 갑니다 (formal): go"}
+      ],
+      curriculum:{unit1:"1단원: 자기소개",lessons1:["1과: 인사하기","2과: 자기소개하기","3과: 이름 묻기","4과: 어디에서 왔어요?"],unit2:"2단원: 카페와 식당",lessons2:["1과: 음료 주문하기","2과: 계산하기"]},
+      scenarios:{restaurant:"식당에서 주문하기",hotel:"호텔 체크인하기",directions:"길 묻기",casual:"일상 대화"}
+    });
+    Object.assign(LANG_CONFIGS.Portuguese, {
+      practicePhrase:"Queria uma chávena de café, por favor",
+      grammar:[
+        {title:"Noun Gender",rule:"Nouns are masculine or feminine, and articles and adjectives agree.",example:"o livro, a mesa, as mesas grandes"},
+        {title:"Present-tense Verbs",rule:"Verb endings change with person and number.",example:"eu falo, você fala, nós falamos"},
+        {title:"Personal Infinitive",rule:"An infinitive can take a personal ending when its subject is explicit.",example:"É importante estudarmos. (It is important for us to study.)"}
+      ],
+      curriculum:{unit1:"Unidade 1: Apresentações",lessons1:["Lição 1: Cumprimentar","Lição 2: Apresentar-se","Lição 3: Perguntar o nome","Lição 4: De onde é?"],unit2:"Unidade 2: No café e no restaurante",lessons2:["Lição 1: Pedir bebidas","Lição 2: Pagar a conta"]},
+      scenarios:{restaurant:"Pedir num restaurante",hotel:"Fazer check-in no hotel",directions:"Pedir indicações",casual:"Conversa informal"}
+    });
+    Object.assign(LANG_CONFIGS.Arabic, {
+      practicePhrase:"أريد فنجان قهوة من فضلك",
+      grammar:[
+        {title:"Root-and-pattern Words",rule:"Many related words are built from a shared consonantal root and different patterns.",example:"ك-ت-ب: كَتَبَ (wrote), كِتاب (book), كاتِب (writer)"},
+        {title:"Noun–Adjective Agreement",rule:"An adjective follows its noun and agrees in gender, number, definiteness, and case.",example:"كتاب جديد / الكتاب الجديد (a/the new book)"},
+        {title:"Nominal Sentences",rule:"In the present tense, a sentence with a noun or adjective predicate usually has no word for “is.”",example:"البيت كبير. (The house is big.)"}
+      ],
+      curriculum:{unit1:"الوحدة ١: التعارف",lessons1:["الدرس ١: التحية","الدرس ٢: تقديم نفسك","الدرس ٣: السؤال عن الاسم","الدرس ٤: من أين أنت؟"],unit2:"الوحدة ٢: في المقهى والمطعم",lessons2:["الدرس ١: طلب المشروبات","الدرس ٢: دفع الحساب"]},
+      scenarios:{restaurant:"الطلب في مطعم",hotel:"تسجيل الوصول إلى الفندق",directions:"السؤال عن الاتجاهات",casual:"محادثة يومية"}
+    });
+    Object.assign(LANG_CONFIGS.English, {
+      practicePhrase:"I would like a cup of coffee, please",
+      grammar:[
+        {title:"Articles",rule:"Use a/an for a non-specific singular noun and the for something specific.",example:"a café; the café near my hotel"},
+        {title:"Present-simple Verbs",rule:"Add -s or -es for he, she, or it in affirmative present-simple sentences.",example:"I speak English. She speaks English."},
+        {title:"Question Word Order",rule:"Most questions use an auxiliary before the subject.",example:"Where do you live? Can you help me?"}
+      ],
+      curriculum:{unit1:"Unit 1: Introductions",lessons1:["Lesson 1: Saying Hello","Lesson 2: Introducing Yourself","Lesson 3: Asking Someone's Name","Lesson 4: Where Are You From?"],unit2:"Unit 2: At the Cafe & Restaurant",lessons2:["Lesson 1: Ordering Coffee & Drinks","Lesson 2: Paying the Bill"]},
+      scenarios:{restaurant:"Ordering at a Restaurant",hotel:"Checking into a Hotel",directions:"Asking for Directions",casual:"Casual Conversation"}
+    });
+
     let selectedTargetLang = "Spanish";
     let fullCallTranscriptHistory = [];
     const DAILY_MINUTES_STUDIED = 12;
@@ -1113,6 +1215,52 @@
       summary.innerHTML = `<div>Languages<strong>${p.native} → ${p.target}</strong></div><div>Goal & focus<strong>${p.goal} · ${p.focus}</strong></div><div>Daily pace<strong>${p.minutes} minutes</strong></div><div>Tutor style<strong>${p.corrections} · ${p.immersion}</strong></div>`;
       document.getElementById('recommended-plan-items').innerHTML = planParts(p).map((item, i) => `<div style="display:flex;align-items:center;gap:8px"><span style="color:${i===0?'var(--accent-green)':i===1?'var(--primary)':'var(--accent-purple)'};font-weight:700">${item.icon}</span> ${item.minutes} min — ${item.text}</div>`).join('');
       renderPhrasebook();
+      renderLocalizedLearningContent();
+    }
+
+    function renderLocalizedLearningContent() {
+      const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish;
+      const curriculum = conf.curriculum;
+
+      document.getElementById('pronunciation-practice-phrase').textContent = `“${conf.practicePhrase}”`;
+      document.getElementById('pronunciation-score').style.display = 'none';
+      document.getElementById('grammar-reference-intro').textContent = `Open a topic for a quick rule and practical ${selectedTargetLang} example.`;
+      document.getElementById('grammar-accordion').innerHTML = conf.grammar.map(topic => `
+        <details><summary>${topic.title}</summary><div class="grammar-content">${topic.rule} <strong>Example:</strong> <em>${topic.example}</em></div></details>
+      `).join('');
+
+      document.getElementById('curriculum-content').innerHTML = `
+        <div class="card" style="background:#f8fafc;border-color:var(--card-border);padding:14px">
+          <div style="font-size:.95rem;font-weight:700;color:var(--primary)">${curriculum.unit1}</div>
+          <div style="font-size:.85rem;color:var(--accent-green);font-weight:600;margin-top:4px">✓ ${curriculum.lessons1[0]}</div>
+          <div style="font-size:.85rem;color:var(--accent-green);font-weight:600">✓ ${curriculum.lessons1[1]}</div>
+          <div style="font-size:.85rem;color:var(--primary);font-weight:700;cursor:pointer" id="localized-current-lesson">▶ ${curriculum.lessons1[2]} (Tap to Start)</div>
+          <div style="font-size:.85rem;color:var(--text-muted)">○ ${curriculum.lessons1[3]}</div>
+        </div>
+        <div class="card" style="background:#f8fafc;border-color:var(--card-border);padding:14px">
+          <div style="font-size:.95rem;font-weight:700">${curriculum.unit2}</div>
+          <div style="font-size:.85rem;color:var(--text-muted);margin-top:4px">○ ${curriculum.lessons2[0]}</div>
+          <div style="font-size:.85rem;color:var(--text-muted)">○ ${curriculum.lessons2[1]}</div>
+        </div>`;
+      document.getElementById('localized-current-lesson').onclick = openInteractiveLessonModal;
+
+      document.getElementById('h-unit-title').textContent = curriculum.unit1;
+      document.getElementById('h-lesson-desc').textContent = curriculum.lessons1[2];
+      document.getElementById('btn-start-lesson').textContent = `▶ ${curriculum.lessons1[2]} (7 mins)`;
+      document.getElementById('lesson-step-title').textContent = curriculum.lessons1[2];
+      document.getElementById('lesson-step-content').textContent = `Learn how to ask and respond to names in ${selectedTargetLang}.`;
+      const lessonPhrase = conf.phrases[0];
+      const lessonBox = document.getElementById('lesson-step-box');
+      lessonBox.innerHTML = `<div style="font-weight:700;color:var(--primary);margin-bottom:4px">New Phrase:</div><div style="font-size:1.1rem;font-weight:800"></div><div style="color:var(--text-muted);font-size:.85rem"></div><button class="btn-secondary" style="margin-top:10px;width:100%;font-size:.85rem">🔊 Listen Native Audio</button>`;
+      lessonBox.children[1].textContent = lessonPhrase.text;
+      lessonBox.children[2].textContent = `“${lessonPhrase.trans}”`;
+      lessonBox.querySelector('button').onclick = () => playElevenLabsSpeech(lessonPhrase.text);
+
+      const scenarioIcons = {restaurant:'🍷', hotel:'🏨', directions:'🗺️', casual:'💬'};
+      document.querySelectorAll('.scenario-btn').forEach(button => {
+        const key = button.dataset.scenario;
+        button.textContent = `${scenarioIcons[key]} ${conf.scenarios[key]}`;
+      });
     }
 
     function chooseOnboardingOption(field, value) {
@@ -1550,9 +1698,15 @@
     let pronunciationChunks = [];
     let pronunciationRecognition = null;
     let pronunciationTranscript = '';
-    function normalizedWords(text) { return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zñ\s]/g,'').trim().split(/\s+/).filter(Boolean); }
+    function normalizedWords(text) {
+      const normalized = text.toLocaleLowerCase().normalize('NFD').replace(/\p{Mark}/gu, '').replace(/[^\p{Letter}\p{Number}\s]/gu, ' ').trim();
+      // Languages commonly written without spaces are compared by character.
+      return /^(zh|ja)/.test((LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish).code)
+        ? [...normalized.replace(/\s/g, '')]
+        : normalized.split(/\s+/).filter(Boolean);
+    }
     function ratePronunciation(transcript) {
-      const target = normalizedWords('Quisiera una taza de café por favor');
+      const target = normalizedWords((LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish).practicePhrase);
       const heard = normalizedWords(transcript);
       const matches = target.filter(word => heard.includes(word)).length;
       const score = Math.max(20, Math.min(100, Math.round((matches / target.length) * 100)));
@@ -1593,7 +1747,8 @@
         const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (Recognition) {
           pronunciationRecognition = new Recognition();
-          pronunciationRecognition.lang = 'es-ES'; pronunciationRecognition.continuous = true; pronunciationRecognition.interimResults = true;
+          pronunciationRecognition.lang = (LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish).code;
+          pronunciationRecognition.continuous = true; pronunciationRecognition.interimResults = true;
           pronunciationRecognition.onresult = event => { pronunciationTranscript = Array.from(event.results).map(result => result[0].transcript).join(' '); };
           try { pronunciationRecognition.start(); } catch(e) {}
         }
@@ -1957,12 +2112,13 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       runGeminiAnalysis(callScenario, fullCallTranscriptHistory);
     }
 
-    document.getElementById('btn-quick-call').onclick = () => startCall("Casual Conversation Practice");
+    document.getElementById('btn-quick-call').onclick = () => startCall((LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish).scenarios.casual);
     document.getElementById('btn-end-call').onclick = handleEndCallClick;
 
     document.querySelectorAll('.scenario-btn').forEach(btn => {
       btn.onclick = () => {
-        const sc = btn.getAttribute('data-scenario');
+        const conf = LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish;
+        const sc = conf.scenarios[btn.getAttribute('data-scenario')];
         startCall(sc);
       };
     });
