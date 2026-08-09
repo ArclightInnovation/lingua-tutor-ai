@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="LingoTutor">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg">
   <title>LingoTutor AI — Conversational AI Language Platform</title>
   <style>
     :root {
@@ -415,6 +422,52 @@
       font-size: 0.9rem;
       flex-shrink: 0;
     }
+
+    .review-search {
+      position: relative;
+    }
+
+    .review-search input {
+      padding-left: 42px;
+    }
+
+    .review-search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .achievement-badge {
+      min-height: 132px;
+      padding: 14px 8px;
+      border: 1px solid #c7d2fe;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #ffffff, var(--primary-light));
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .achievement-icon { font-size: 2rem; }
+    .achievement-name { font-size: 0.78rem; font-weight: 800; line-height: 1.2; }
+    .achievement-detail { font-size: 0.7rem; color: var(--text-muted); line-height: 1.25; }
+
+    @media (max-width: 420px) {
+      .achievement-grid { grid-template-columns: 1fr; }
+      .achievement-badge { min-height: 92px; }
+    }
   </style>
 </head>
 <body>
@@ -559,6 +612,11 @@
 
       <!-- 🔄 REVIEW VIEW -->
       <div id="view-review" class="view-section">
+        <div class="review-search">
+          <span class="review-search-icon" aria-hidden="true">⌕</span>
+          <input type="search" id="review-search" placeholder="Search flashcards, mistakes, or phrases..." aria-label="Search review content" autocomplete="off">
+        </div>
+        <div id="review-search-status" role="status" aria-live="polite" style="font-size:0.8rem; color:var(--text-muted); margin-top:-10px;"></div>
         <div class="card">
           <div class="card-header">
             <div class="card-title">🔄 Spaced Repetition Flashcards (SM-2)</div>
@@ -566,7 +624,7 @@
           </div>
 
           <!-- Flip Flashcard Component -->
-          <div class="flashcard" id="flashcard-box" onclick="flipFlashcard()">
+          <div class="flashcard review-search-item" id="flashcard-box" data-search="¿Dónde está where is phrasal verb mucho gusto nice to meet you target word flashcard" onclick="flipFlashcard()">
             <div style="font-size:0.8rem; color:var(--primary); font-weight:700; margin-bottom:8px;">TARGET WORD</div>
             <div style="font-size:1.8rem; font-weight:800; color:var(--text-main);" id="fc-front">¿Dónde está...?</div>
             <div style="font-size:1rem; font-weight:600; color:var(--text-muted); margin-top:12px; display:none;" id="fc-back">Where is...? (Phrasal Verb)</div>
@@ -584,7 +642,7 @@
         <div class="card">
           <div class="card-title">📖 Grammar & Mistake Notebook</div>
           <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px;">
-            <div style="background:#fff1f2; border:1px solid #fecdd3; padding:10px; border-radius:8px;">
+            <div class="review-search-item" data-search="yo quiero una agua yo quiero un agua feminine nouns stressed a masculine article learner mistake grammar" style="background:#fff1f2; border:1px solid #fecdd3; padding:10px; border-radius:8px;">
               <div style="font-weight:700; color:#be123c;">Learner Mistake Logged:</div>
               <div><em>"Yo quiero una agua"</em> ➔ <strong style="color:#047857;">"Yo quiero un agua"</strong></div>
               <div style="font-size:0.75rem; color:#881337; margin-top:4px;">Rule: Feminine nouns starting with stressed 'a' use masculine article 'un'.</div>
@@ -595,15 +653,15 @@
         <div class="card">
           <div class="card-title">📕 Personal Phrasebook (With ElevenLabs Native Audio)</div>
           <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);" id="phrasebook-list">
-            <div class="phrase-item">
+            <div class="phrase-item review-search-item" data-search="¿Cómo te llamas? what is your name">
               <div><strong>¿Cómo te llamas?</strong> — What is your name?</div>
               <button class="audio-btn" onclick="playElevenLabsSpeech('¿Cómo te llamas?')">🔊</button>
             </div>
-            <div class="phrase-item">
+            <div class="phrase-item review-search-item" data-search="Mucho gusto en conocerte nice to meet you">
               <div><strong>Mucho gusto en conocerte</strong> — Nice to meet you</div>
               <button class="audio-btn" onclick="playElevenLabsSpeech('Mucho gusto en conocerte')">🔊</button>
             </div>
-            <div class="phrase-item">
+            <div class="phrase-item review-search-item" data-search="¿Dónde está el baño? where is the restroom bathroom">
               <div><strong>¿Dónde está el baño?</strong> — Where is the restroom?</div>
               <button class="audio-btn" onclick="playElevenLabsSpeech('¿Dónde está el baño?')">🔊</button>
             </div>
@@ -613,6 +671,29 @@
 
       <!-- 👤 PROFILE VIEW -->
       <div id="view-profile" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏆 Achievements</div>
+            <span class="badge badge-success">3 Earned</span>
+          </div>
+          <div class="achievement-grid" aria-label="Earned achievement badges">
+            <div class="achievement-badge">
+              <div class="achievement-icon" aria-hidden="true">🔥</div>
+              <div class="achievement-name">5-Day Streak</div>
+              <div class="achievement-detail">Practiced five days in a row</div>
+            </div>
+            <div class="achievement-badge">
+              <div class="achievement-icon" aria-hidden="true">💬</div>
+              <div class="achievement-name">First Conversation</div>
+              <div class="achievement-detail">Completed an AI tutor chat</div>
+            </div>
+            <div class="achievement-badge">
+              <div class="achievement-icon" aria-hidden="true">📚</div>
+              <div class="achievement-name">Vocab Master</div>
+              <div class="achievement-detail">Mastered the first vocabulary set</div>
+            </div>
+          </div>
+        </div>
         <div class="card">
           <div class="card-title">👤 Learner Profile & Settings</div>
           
@@ -931,7 +1012,7 @@
       
       document.getElementById('h-lang-flag').innerText = conf.flag;
       document.getElementById('phrasebook-list').innerHTML = conf.phrases.map(p => `
-        <div class="phrase-item">
+        <div class="phrase-item review-search-item" data-search="${p.text} ${p.trans}">
           <div><strong>${p.text}</strong> — ${p.trans}</div>
           <button class="audio-btn" onclick="playElevenLabsSpeech('${p.text}')">🔊</button>
         </div>
@@ -939,7 +1020,30 @@
       document.getElementById('badge-curr-cefr').innerText = `CEFR ${document.getElementById('sel-cefr').value}`;
       
       alert(`Target language updated to ${selectedTargetLang} ${conf.flag}!`);
+      filterReviewContent(document.getElementById('review-search').value);
     };
+
+    // Review search filters flashcards, logged mistakes, and phrasebook entries.
+    function filterReviewContent(rawQuery) {
+      const query = rawQuery.trim().toLocaleLowerCase();
+      const items = [...document.querySelectorAll('#view-review .review-search-item')];
+      let visibleCount = 0;
+
+      items.forEach(item => {
+        const searchableText = `${item.dataset.search || ''} ${item.textContent}`.toLocaleLowerCase();
+        const matches = !query || searchableText.includes(query);
+        item.style.display = matches ? '' : 'none';
+        if (matches) visibleCount++;
+      });
+
+      document.getElementById('review-search-status').textContent = query
+        ? `${visibleCount} review ${visibleCount === 1 ? 'item' : 'items'} found`
+        : '';
+    }
+
+    document.getElementById('review-search').addEventListener('input', event => {
+      filterReviewContent(event.target.value);
+    });
 
     // Interactive Lesson Player
     function openInteractiveLessonModal() {
@@ -1406,6 +1510,10 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
         elevenLabsApiKey = xorDecrypt(ENCRYPTED_ELEVEN_KEY_CIPHER, pass);
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-container').classList.add('unlocked');
+      }
+
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
       }
     };
   </script>
