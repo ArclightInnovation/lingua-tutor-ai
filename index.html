@@ -601,18 +601,6 @@
             <span class="badge badge-primary" id="badge-curr-cefr">CEFR A1</span>
           </div>
           <div id="curriculum-content" style="display:flex; flex-direction:column; gap:12px; margin-top:4px;">
-            <div class="card" style="background:#f8fafc; border-color:var(--card-border); padding:14px;">
-              <div style="font-size:0.95rem; font-weight:700; color:var(--primary);">Unit 1: Introductions</div>
-              <div style="font-size:0.85rem; color:var(--accent-green); font-weight:600; margin-top:4px;">✓ Lesson 1: Saying Hello</div>
-              <div style="font-size:0.85rem; color:var(--accent-green); font-weight:600;">✓ Lesson 2: Introducing Yourself</div>
-              <div style="font-size:0.85rem; color:var(--primary); font-weight:700; cursor:pointer;" onclick="openInteractiveLessonModal()">▶ Lesson 3: Asking Someone's Name (Tap to Start)</div>
-              <div style="font-size:0.85rem; color:var(--text-muted);">○ Lesson 4: Where Are You From?</div>
-            </div>
-            <div class="card" style="background:#f8fafc; border-color:var(--card-border); padding:14px;">
-              <div style="font-size:0.95rem; font-weight:700;">Unit 2: At the Cafe & Restaurant</div>
-              <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">○ Lesson 1: Ordering Coffee & Drinks</div>
-              <div style="font-size:0.85rem; color:var(--text-muted);">○ Lesson 2: Paying the Bill</div>
-            </div>
           </div>
         </div>
 
@@ -628,24 +616,8 @@
 
         <div class="card">
           <div class="card-title">🧩 Grammar Reference</div>
-          <p id="grammar-reference-intro" style="font-size:.84rem;color:var(--text-muted);margin:0;">Open a topic for a quick rule and practical Spanish example.</p>
+          <p id="grammar-reference-intro" style="font-size:.84rem;color:var(--text-muted);margin:0;">Open a topic for a quick rule and practical example.</p>
           <div class="grammar-accordion" id="grammar-accordion">
-            <details>
-              <summary>Noun Gender</summary>
-              <div class="grammar-content">Nouns are generally masculine or feminine. Endings in <strong>-o</strong> are often masculine and <strong>-a</strong> often feminine, but exceptions exist. Example: <em>el libro</em> (the book), <em>la mesa</em> (the table).</div>
-            </details>
-            <details>
-              <summary>Verb Conjugation</summary>
-              <div class="grammar-content">The verb ending changes with the subject. For regular <strong>-ar</strong> verbs in the present tense: <em>yo hablo, tú hablas, él/ella habla, nosotros hablamos, ellos hablan</em>.</div>
-            </details>
-            <details>
-              <summary>Articles</summary>
-              <div class="grammar-content">Definite articles are <strong>el, la, los, las</strong>; indefinite articles are <strong>un, una, unos, unas</strong>. They agree with the noun's gender and number: <em>las casas</em>, <em>un café</em>.</div>
-            </details>
-            <details>
-              <summary>Word Order</summary>
-              <div class="grammar-content">The usual order is subject–verb–object, though the subject is often omitted when the verb makes it clear. Adjectives commonly follow nouns: <em>(Yo) quiero una camisa azul</em>.</div>
-            </details>
           </div>
         </div>
       </div>
@@ -726,18 +698,6 @@
           </form>
           <div id="custom-phrase-status" role="status" aria-live="polite" style="font-size:.78rem;color:var(--accent-green);"></div>
           <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px; color:var(--text-main);" id="phrasebook-list">
-            <div class="phrase-item review-search-item" data-search="¿Cómo te llamas? what is your name">
-              <div><strong>¿Cómo te llamas?</strong> — What is your name?</div>
-              <button class="audio-btn" onclick="playElevenLabsSpeech('¿Cómo te llamas?')">🔊</button>
-            </div>
-            <div class="phrase-item review-search-item" data-search="Mucho gusto en conocerte nice to meet you">
-              <div><strong>Mucho gusto en conocerte</strong> — Nice to meet you</div>
-              <button class="audio-btn" onclick="playElevenLabsSpeech('Mucho gusto en conocerte')">🔊</button>
-            </div>
-            <div class="phrase-item review-search-item" data-search="¿Dónde está el baño? where is the restroom bathroom">
-              <div><strong>¿Dónde está el baño?</strong> — Where is the restroom?</div>
-              <button class="audio-btn" onclick="playElevenLabsSpeech('¿Dónde está el baño?')">🔊</button>
-            </div>
           </div>
         </div>
       </div>
@@ -966,6 +926,14 @@
     const TARGET_SHA256_HASH = "17d5e54eebd3eec11776c65244d202834334929674c414f2d19b67bdb541d803";
     const ENCRYPTED_GEMINI_KEY_CIPHER = "AD9KKBhCPisHdWpeXXgKZEJ5AQBdQzMJE0EAFAVDRGYbWHU4NQ4fTDsgVlwBZHNaRVd2OS8=";
     const ENCRYPTED_ELEVEN_KEY_CIPHER = "MgU7XRhNWwcHAF0DCwBRDkd4WVAMSE4PAwFYDQhRUgcDQCVWUQgeQwgBVVoAA1MEAlIR";
+
+    // Fallback Gemini Model Array for Quota Management
+    const GEMINI_MODEL_FALLBACKS = [
+      "gemini-3.1-pro-preview",
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-flash-latest"
+    ];
 
     // Target Language Configuration Dictionary
     const LANG_CONFIGS = {
@@ -1556,7 +1524,7 @@
 
     document.getElementById('btn-start-lesson').onclick = openInteractiveLessonModal;
     document.getElementById('btn-next-lesson-step').onclick = () => {
-      alert("🎉 Lesson 3 Completed! +50 XP Earned. Daily Goal updated!");
+      alert("🎉 Lesson Completed! +50 XP Earned. Daily Goal updated!");
       closeLessonModal();
     };
 
@@ -1700,7 +1668,6 @@
     let pronunciationTranscript = '';
     function normalizedWords(text) {
       const normalized = text.toLocaleLowerCase().normalize('NFD').replace(/\p{Mark}/gu, '').replace(/[^\p{Letter}\p{Number}\s]/gu, ' ').trim();
-      // Languages commonly written without spaces are compared by character.
       return /^(zh|ja)/.test((LANG_CONFIGS[selectedTargetLang] || LANG_CONFIGS.Spanish).code)
         ? [...normalized.replace(/\s/g, '')]
         : normalized.split(/\s+/).filter(Boolean);
@@ -1818,7 +1785,7 @@
 
     // ElevenLabs Text-to-Speech Voice Generation
     async function playElevenLabsSpeech(text, voiceId = "EXAVITQu4vr4xnSDxMaL") {
-      if (!elevenLabsApiKey) return;
+      if (!elevenLabsApiKey || !isCallActive) return;
       
       if (activeElevenLabsAudio) {
         activeElevenLabsAudio.pause();
@@ -1847,7 +1814,7 @@
           })
         });
 
-        if (resp.ok) {
+        if (resp.ok && isCallActive) {
           const audioBlob = await resp.blob();
           const audioUrl = URL.createObjectURL(audioBlob);
           activeElevenLabsAudio = new Audio(audioUrl);
@@ -1866,7 +1833,7 @@
       }
     }
 
-    // Gemini 3.1 Pro Conversational Response Generator
+    // Gemini 3.1 Pro / Model Fallback Conversational Response Generator
     async function getGeminiTutorReply(learnerInputText) {
       if (!geminiApiKey) return "¡Muy bien! Sigue practicando.";
       
@@ -1875,19 +1842,22 @@
 The learner just said: "${learnerInputText}".
 Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suitable for level ${cefr}. Keep it engaging and encourage the conversation.`;
 
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${geminiApiKey}`;
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
+      for (const model of GEMINI_MODEL_FALLBACKS) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`;
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          });
 
-        if (resp.ok) {
-          const data = await resp.json();
-          return data?.candidates?.[0]?.content?.parts?.[0]?.text || "¡Excelente! ¿Qué más quisieras practicar?";
-        }
-      } catch (e) {}
+          if (resp.ok) {
+            const data = await resp.json();
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) return text;
+          }
+        } catch (e) {}
+      }
 
       return "¡Muy bien! ¿Qué más quisieras practicar?";
     }
@@ -1973,36 +1943,38 @@ Respond naturally in 1-2 conversational sentences in ${selectedTargetLang} suita
       document.getElementById('call-screen').style.display = 'none';
     }
 
-    // Gemini 3.1 Pro API Post-Call Analysis Call
+    // Gemini API Post-Call Analysis with Model Fallback Strategy
     async function runGeminiAnalysis(scenario, transcriptHistory) {
       if (!geminiApiKey) return;
-      try {
-        const fullTranscriptText = transcriptHistory.join('\n');
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${geminiApiKey}`;
-        const payload = {
-          contents: [{
-            parts: [{
-              text: `You are the Senior AI Language Tutor for LingoTutor AI. Analyze this practice conversation transcript in ${selectedTargetLang}.\nScenario: ${scenario}\nTranscript:\n${fullTranscriptText}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`
-            }]
-          }]
-        };
+      
+      const fullTranscriptText = transcriptHistory.join('\n');
+      const prompt = `You are the Senior AI Language Tutor for LingoTutor AI. Analyze this practice conversation transcript in ${selectedTargetLang}.\nScenario: ${scenario}\nTranscript:\n${fullTranscriptText}\n\nProvide structured feedback in HTML format: 1) What the learner did well, 2) Important corrections (Learner Said -> Correct Version -> Explanation), and 3) 2 key new vocabulary words.`;
 
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(payload)
-        });
+      for (const model of GEMINI_MODEL_FALLBACKS) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`;
+          const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
-        if (resp.ok) {
-          const data = await resp.json();
-          const feedbackHTML = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Great conversation practice!";
-          document.getElementById('analysis-content').innerHTML = feedbackHTML;
-          document.getElementById('analysis-card').style.display = 'flex';
-        }
-      } catch (e) {
-        document.getElementById('analysis-content').innerText = `Session complete! Great practice with ${selectedTargetLang} speech & vocabulary.`;
-        document.getElementById('analysis-card').style.display = 'flex';
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+          });
+
+          if (resp.ok) {
+            const data = await resp.json();
+            const feedbackHTML = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (feedbackHTML) {
+              document.getElementById('analysis-content').innerHTML = feedbackHTML;
+              document.getElementById('analysis-card').style.display = 'flex';
+              return;
+            }
+          }
+        } catch (e) {}
       }
+
+      document.getElementById('analysis-content').innerText = `Session complete! Great practice with ${selectedTargetLang} speech & vocabulary.`;
+      document.getElementById('analysis-card').style.display = 'flex';
     }
 
     // Toggle Microphone Recording via Button
